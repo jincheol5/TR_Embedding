@@ -13,7 +13,7 @@ def main(**kwargs):
             max_hop=5
 
             ### load SR, TR result
-            dataset_name=kwargs["dataset_name"],
+            dataset_name=kwargs["dataset_name"]
             train_SR_result=DataUtils.load_SR_result(
                 dataset_name=dataset_name,
                 max_hop=max_hop,
