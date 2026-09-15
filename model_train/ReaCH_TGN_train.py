@@ -89,44 +89,44 @@ class ReaCH_TGN_Trainer:
                 query_time=event_t.max().item()
 
                 ### Temporal Augmentation of Eventstream and Contrastive Learning
-                view_A_mem_vec=model.memory.get_mem_vec().clone()
-                view_A_mem_t=model.memory.get_mem_t().clone()
-                view_B_mem_vec=model.memory.get_mem_vec().clone()
-                view_B_mem_t=model.memory.get_mem_t().clone()
+                # view_A_mem_vec=model.memory.get_mem_vec().clone()
+                # view_A_mem_t=model.memory.get_mem_t().clone()
+                # view_B_mem_vec=model.memory.get_mem_vec().clone()
+                # view_B_mem_t=model.memory.get_mem_t().clone()
 
-                view_A_t=ReaCH_TGN_Utils.Temporal_Augmentation(event_t=event_t)
-                view_B_t=ReaCH_TGN_Utils.Temporal_Augmentation(event_t=event_t)
+                # view_A_t=ReaCH_TGN_Utils.Temporal_Augmentation(event_t=event_t)
+                # view_B_t=ReaCH_TGN_Utils.Temporal_Augmentation(event_t=event_t)
 
-                view_A_vec=model.get_embedded_vec_for_contrastive_learning(
-                    src=event_src,
-                    dst=event_dst,
-                    edge=event_edge,
-                    event_t=view_A_t,
-                    mem_vec=view_A_mem_vec,
-                    mem_t=view_A_mem_t
-                )
-                view_A_src_vec=view_A_vec["src_vec"]
-                view_A_dst_vec=view_A_vec["dst_vec"]
+                # view_A_vec=model.get_embedded_vec_for_contrastive_learning(
+                #     src=event_src,
+                #     dst=event_dst,
+                #     edge=event_edge,
+                #     event_t=view_A_t,
+                #     mem_vec=view_A_mem_vec,
+                #     mem_t=view_A_mem_t
+                # )
+                # view_A_src_vec=view_A_vec["src_vec"]
+                # view_A_dst_vec=view_A_vec["dst_vec"]
 
-                view_B_vec=model.get_embedded_vec_for_contrastive_learning(
-                    src=event_src,
-                    dst=event_dst,
-                    edge=event_edge,
-                    event_t=view_B_t,
-                    mem_vec=view_B_mem_vec,
-                    mem_t=view_B_mem_t
-                )
-                view_B_src_vec=view_B_vec["src_vec"]
-                view_B_dst_vec=view_B_vec["dst_vec"]
+                # view_B_vec=model.get_embedded_vec_for_contrastive_learning(
+                #     src=event_src,
+                #     dst=event_dst,
+                #     edge=event_edge,
+                #     event_t=view_B_t,
+                #     mem_vec=view_B_mem_vec,
+                #     mem_t=view_B_mem_t
+                # )
+                # view_B_src_vec=view_B_vec["src_vec"]
+                # view_B_dst_vec=view_B_vec["dst_vec"]
 
-                NT_Xent_Loss=ReaCH_TGN_Utils.compute_NT_Xent_Loss(
-                    src=event_src,
-                    dst=event_dst,
-                    Z_src_A=view_A_src_vec,
-                    Z_src_B=view_B_src_vec,
-                    Z_dst_A=view_A_dst_vec,
-                    Z_dst_B=view_B_dst_vec
-                )
+                # NT_Xent_Loss=ReaCH_TGN_Utils.compute_NT_Xent_Loss(
+                #     src=event_src,
+                #     dst=event_dst,
+                #     Z_src_A=view_A_src_vec,
+                #     Z_src_B=view_B_src_vec,
+                #     Z_dst_A=view_A_dst_vec,
+                #     Z_dst_B=view_B_dst_vec
+                # )
 
                 ### update memory for eventsream
                 model.update_model_memory(
@@ -174,7 +174,7 @@ class ReaCH_TGN_Trainer:
                 loss_weight=torch.ones_like(sample_loss) # [B,]
                 loss_weight[pos_mask]=hop_penalty_weight*time_gap_penalty_weight # [B,]
                 loss=(sample_loss*loss_weight).mean()
-                loss+=NT_Xent_Loss
+                # loss+=NT_Xent_Loss
 
                 ### backward
                 optimizer.zero_grad()
