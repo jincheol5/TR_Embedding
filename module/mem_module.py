@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from typing_extensions import Literal
+from typing import Literal
 from graph import TGN_Graph
-from .time_encoder import TimeEncoder
+from .time_encoder_module import TimeEncoder
 
 class Memory(nn.Module):
     def __init__(self,
@@ -146,12 +146,12 @@ class MemoryUpdater(nn.Module):
             )
     
     def create_message(self,
-            src,
-            dst,
-            edge,
-            event_t,
-            mem_vec,
-            mem_t
+            src:torch.Tensor,
+            dst:torch.Tensor,
+            edge:torch.Tensor,
+            event_t:torch.Tensor,
+            mem_vec:torch.Tensor,
+            mem_t:torch.Tensor
         ):
         """
         Input:
@@ -276,12 +276,12 @@ class MemoryUpdater(nn.Module):
         return aggr_node,aggr_msg,aggr_event_t
     
     def update_memory(self,
-            src,
-            dst,
-            edge,
-            event_t,
-            mem_vec,
-            mem_t
+            src:torch.Tensor,
+            dst:torch.Tensor,
+            edge:torch.Tensor,
+            event_t:torch.Tensor,
+            mem_vec:torch.Tensor,
+            mem_t:torch.Tensor
         ):
         """
         자식 class의 update_memory 실행으로 자식 class에서 구현된 update_memory_implement 호출
@@ -360,10 +360,10 @@ class GRUMemoryUpdater(MemoryUpdater):
         )
 
     def update_memory_implement(self,
-            aggr_node,
-            aggr_msg,
-            aggr_event_t,
-            mem_vec
+            aggr_node:torch.Tensor,
+            aggr_msg:torch.Tensor,
+            aggr_event_t:torch.Tensor,
+            mem_vec:torch.Tensor
         ):
         """
         Input:
@@ -383,4 +383,3 @@ class GRUMemoryUpdater(MemoryUpdater):
             "mem_vec":updated_mem_vec, # [unique_N,mem_dim]
             "mem_t":aggr_event_t # [unique_N,]
         }
-

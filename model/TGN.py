@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from typing_extensions import Literal
 from graph import TGN_Graph
-from module import TimeEncoder,Memory,GraphAttnEmbedding,GRUMemoryUpdater
+from module import TimeEncoder,Memory,GraphAttnEmbedding,GRUMemoryUpdater,TR_Decoder
 
 class TGN(nn.Module):
     def __init__(self,
@@ -39,7 +39,7 @@ class TGN(nn.Module):
         self.graph=graph
 
         # memory
-        self.n_node=self.graph.get_num_node()
+        self.n_node=self.graph.n_node
         self.memory=Memory(n_node=self.n_node,mem_dim=self.mem_dim)
 
         # time encoder
@@ -69,14 +69,15 @@ class TGN(nn.Module):
             n_layer=n_layer,
             n_neighbor=n_neighbor,
             n_head=n_head,
+            use_last_state=False,
             use_memory=True,
             time_encoder=self.time_encoder
         )
 
         # decoder
-        self.decoder=nn.Linear(
-            in_features=embed_dim+embed_dim,
-            out_features=1
+        self.decoder=TR_Decoder(
+            embed_dim=embed_dim,
+            latent_dim=latent_dim
         )
 
     def update_model_memory(self,
@@ -106,7 +107,6 @@ class TGN(nn.Module):
             mem_vec=updated_mem_vec,
             mem_t=updated_mem_t
         )
-        return updated_result
 
     def embedding(self,
             src:torch.Tensor,
@@ -147,14 +147,12 @@ class TGN(nn.Module):
             dst=dst,
             event_t=event_t
         )
-        src_vec=embedded_result["src_vec"]
-        dst_vec=embedded_result["dst_vec"]
+        src_vec=embedded_result["src_vec"] # [B,embed_dim]
+        dst_vec=embedded_result["dst_vec"] # [B,embed_dim]
 
         ### decode 
-        pair_vec=torch.concat([src_vec,dst_vec],dim=-1) # [B,embed_dim+embed_dim]
-        pred_logit=self.decoder(pair_vec) # [B,1]
+        pred_logit=self.decoder(
+            src_vec=src_vec,
+            dst_vec=dst_vec
+        ) # [B,1]
         return pred_logit
-
-
-
-

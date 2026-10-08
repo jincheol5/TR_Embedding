@@ -4,17 +4,13 @@ from tqdm import tqdm
 from torch.utils.data import DataLoader
 from utils import TrainUtils,Metric,EarlyStopper
 
-class GNNModelTrainer:
-    """
-    GNN Model 학습/평가
-    """
+class ModelTrainer:
     @staticmethod
     def train(
             model:nn.Module,
             train_loader:DataLoader,
             val_loader:DataLoader,
-            val_sample_list:list,
-            SR_result:dict[str,torch.Tensor],
+            val_sample_list:list[dict[str,torch.Tensor]],
             TR_result:dict[str,torch.Tensor],
             **kwargs
         ):
@@ -57,13 +53,11 @@ class GNNModelTrainer:
 
             ### Epoch마다 train_sample_list 생성
             train_sample_list=TrainUtils.get_TR_sample_list(
-                n_pair=kwargs["n_pair"],
                 data_loader=train_loader,
-                SR_result=SR_result,
+                n_sample=kwargs["n_sample"],
+                n_pair=kwargs["n_pair"],
                 TR_result=TR_result,
-                sampling=kwargs["sampling"],
-                pos_hard_ratio=kwargs["pos_hard_ratio"],
-                neg_hard_ratio=kwargs["neg_hard_ratio"]
+                sampling=kwargs["sampling"]
             )
 
             model.train()
@@ -72,7 +66,7 @@ class GNNModelTrainer:
                     total=len(train_sample_list),
                     desc=f"Training epoch {epoch+1}..."
                 ):
-                ### Eventstream
+                ### Update model memory for Eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
                 if kwargs["model_name"] in ("TGN"):
                     event_src=event_src.to(device)
@@ -119,7 +113,7 @@ class GNNModelTrainer:
             """
             Validate Model
             """
-            val_result=GNNModelTrainer.validate(
+            val_result=ModelTrainer.validate(
                 model=model,
                 val_loader=val_loader,
                 val_sample_list=val_sample_list,
@@ -175,7 +169,7 @@ class GNNModelTrainer:
                     total=len(val_sample_list),
                     desc=f"Validate..."
                 ):
-                ### Eventstream
+                ### Update model memory for Eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
                 if kwargs["model_name"] in ("TGN"):
                     event_src=event_src.to(device)
@@ -226,13 +220,11 @@ class GNNModelTrainer:
     @staticmethod
     def evaluate(
             model:nn.Module,
-            val_loader:DataLoader,
             test_loader:DataLoader,
             test_sample_list:list,
             **kwargs
         ):
         """
-        Memory-based GNN의 경우 evaluate_model 전에 val_loader에 대해 memory update 수행되어야 함.
         """
         if torch.cuda.is_available():
             device=torch.device("cuda")
@@ -245,35 +237,17 @@ class GNNModelTrainer:
         model.eval()
 
         """
-        update memory for validate eventstream
-        """
-        if kwargs["model_name"] in ("TGN"):
-            for event_src,event_dst,event_t,event_edge in tqdm(
-                    val_loader,
-                    desc=f"validate eventstream에 대한 memory update 수행..."
-                ):
-                event_src=event_src.to(device)
-                event_dst=event_dst.to(device)
-                event_t=event_t.to(device)
-                event_edge=event_edge.to(device)
-                model.update_model_memory(
-                    src=event_src,
-                    dst=event_dst,
-                    event_t=event_t,
-                    edge=event_edge
-                )
-
-        """
         compute test acc
         """
-        acc_list=[]
+        pred_logit_list=[]
+        label_list=[]
         with torch.no_grad():
             for batch_event,batch_sample in tqdm(
                     zip(test_loader,test_sample_list),
                     total=len(test_sample_list),
                     desc=f"Compute Test Acc..."
                 ):
-                ### Eventstream
+                ### Update model memory for Eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
                 if kwargs["model_name"] in ("TGN"):
                     event_src=event_src.to(device)
@@ -301,15 +275,100 @@ class GNNModelTrainer:
                     src=src,
                     dst=dst,
                     event_t=query_t
-                ) # [B,1]
+                ) # [n_sample,1]
 
                 ### ACC
                 pred_logit=pred_logit.squeeze(-1) # -> [B,]
-                batch_acc=Metric.compute_accuracy(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                acc_list.append(batch_acc)
+                pred_logit_list.append(pred_logit.cpu())
+                label_list.append(label.cpu())
+        acc=Metric.compute_accuracy(
+            pred_logit=torch.cat(pred_logit_list,dim=0),
+            label=torch.cat(label_list,dim=0)
+        )
         return {
-            "acc":sum(acc_list)/len(acc_list)
+            "acc":acc
+        }
+
+    @staticmethod
+    def evaluate_hop_range(
+            model:nn.Module,
+            test_loader:DataLoader,
+            test_sample_list:list,
+            **kwargs
+        ):
+        """
+        """
+        if torch.cuda.is_available():
+            device=torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            device=torch.device("mps")
+        else:
+            device=torch.device("cpu")
+        model.to(device)
+        model.graph.to_device(device=device)
+        model.eval()
+
+        """
+        compute test acc
+        """
+        range_pred_logit_lists=[[],[],[]]
+        range_label_lists=[[],[],[]]
+        with torch.no_grad():
+            for batch_event,batch_sample in tqdm(
+                    zip(test_loader,test_sample_list),
+                    total=len(test_sample_list),
+                    desc=f"Compute Test Acc..."
+                ):
+                ### Update model memory for Eventstream
+                event_src,event_dst,event_t,event_edge=batch_event
+                if kwargs["model_name"] in ("TGN"):
+                    event_src=event_src.to(device)
+                    event_dst=event_dst.to(device)
+                    event_t=event_t.to(device)
+                    event_edge=event_edge.to(device)
+                    model.update_model_memory(
+                        src=event_src,
+                        dst=event_dst,
+                        event_t=event_t,
+                        edge=event_edge
+                    )
+
+                ### TR Sample
+                src=batch_sample["src"]
+                dst=batch_sample["dst"]
+                query_t=batch_sample["query_t"]
+                label=batch_sample["label"]
+                range_1_mask=batch_sample["range_1_mask"]
+                range_2_mask=batch_sample["range_2_mask"]
+                range_3_mask=batch_sample["range_3_mask"]
+                src=src.to(device)
+                dst=dst.to(device)
+                query_t=query_t.to(device)
+                label=label.to(device)
+                range_1_mask=range_1_mask.to(device)
+                range_2_mask=range_2_mask.to(device)
+                range_3_mask=range_3_mask.to(device)
+
+                pred_logit=model(
+                    src=src,
+                    dst=dst,
+                    event_t=query_t
+                ) # [n_sample,1]
+                pred_logit=pred_logit.squeeze(-1) # [n_sample,]
+
+                ### Collect predictions and labels for each range
+                for range_idx,range_mask in enumerate((range_1_mask,range_2_mask,range_3_mask)):
+                    if range_mask.any():
+                        range_pred_logit_lists[range_idx].append(pred_logit[range_mask].cpu())
+                        range_label_lists[range_idx].append(label[range_mask].cpu())
+
+        ### Compute accuracy over all samples in each range
+        return {
+            f"range_{range_idx+1}_acc":Metric.compute_accuracy(
+                pred_logit=torch.cat(pred_logit_list,dim=0),
+                label=torch.cat(label_list,dim=0)
+            ) if pred_logit_list else 0.0
+            for range_idx,(pred_logit_list,label_list) in enumerate(
+                zip(range_pred_logit_lists,range_label_lists)
+            )
         }

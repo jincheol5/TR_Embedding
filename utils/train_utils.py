@@ -6,8 +6,7 @@ import torch
 from typing import Literal
 from tqdm import tqdm
 from torch.utils.data import Dataset,DataLoader
-from graph import TemporalGraph
-from .TR_sampling import TR_Sampling
+from .sampling_utils import SamplingUtils
 
 class TemporalGraphDataset(Dataset):
     def __init__(self,df:pd.DataFrame):
@@ -21,23 +20,6 @@ class TemporalGraphDataset(Dataset):
 
     def __getitem__(self,idx):
         return self.src[idx],self.dst[idx],self.t[idx],self.edge[idx]
-
-class TRSampleDataset(Dataset):
-    """
-    Walk-based model 학습을 위한 TR sample dataset
-    """
-    def __init__(self,TR_sample:dict[str,torch.Tensor]):
-        self.src=TR_sample["src"]
-        self.dst=TR_sample["dst"]
-        self.label=TR_sample["label"]
-        self.query_t=TR_sample["query_t"]
-        self.pos_mask=TR_sample["pos_mask"]
-
-    def __len__(self):
-        return len(self.src)
-
-    def __getitem__(self,idx):
-        return self.src[idx],self.dst[idx],self.label[idx],self.query_t[idx],self.pos_mask[idx]
 
 class EarlyStopper:
     def __init__(self,
@@ -124,183 +106,52 @@ class TrainUtils:
         return train_df,val_df,test_df
 
     @staticmethod
-    def get_SR_result(
-            graph:TemporalGraph,
-            data_loader:DataLoader,
-            max_hop:int
-        ):
-        """
-        Static Reachability라 하더라도 계산에 사용되는 edge 정보는 query time 이전 edge들로 한다.
-
-        Input:
-            graph
-            data_loader
-            max_hop
-        Return:
-            SR_result: dict
-                SR_label: [seq_len,N+1,N+1], boolean tensor
-                SR_hop: [seq_len,N+1,N+1], int8 tensor
-        """
-        n_node=graph.get_num_node()
-        SR_result=torch.zeros(
-            (len(data_loader),n_node+1,n_node+1),
-            dtype=torch.bool
-        )
-        SR_hop=torch.zeros(
-            (len(data_loader),n_node+1,n_node+1),
-            dtype=torch.int8
-        )
-        for seq_idx,(_,_,event_t,_) in enumerate(tqdm(data_loader,desc="Compute SR result tensor...")):
-            query_time=event_t.max().item()
-            for source in range(1,n_node+1):
-                SR_info=graph.compute_SR(
-                    source=source,
-                    query_time=query_time,
-                    max_hop=max_hop
-                )
-                for dst in range(1,n_node+1):
-                    info=SR_info[dst]
-                    if not info["r"]:
-                        continue
-                    SR_result[seq_idx,source,dst]=True
-                    SR_hop[seq_idx,source,dst]=int(info["hop"])
-        return {
-            "SR_label":SR_result,
-            "SR_hop":SR_hop
-        }
-
-    @staticmethod
-    def get_TR_result(
-            graph:TemporalGraph,
-            data_loader:DataLoader,
-            max_hop:int
-        )->dict[str,torch.Tensor]:
-        """
-        Input:
-            graph
-            data_loader
-            max_hop
-        Return:
-            TR_result: dict
-                TR_label: [seq_len,N+1,N+1], boolean tensor
-                TR_hop: [seq_len,N+1,N+1], int8 tensor
-                TR_last_t: [seq_len,N+1,N+1], int16 tensor
-                TR_first_t: [seq_len,N+1,N+1], int16 tensor
-        """
-        n_node=graph.get_num_node()
-        TR_result=torch.zeros(
-            (len(data_loader),n_node+1,n_node+1),
-            dtype=torch.bool
-        )
-        TR_hop=torch.zeros(
-            (len(data_loader),n_node+1,n_node+1),
-            dtype=torch.int8
-        )
-        TR_last_t=torch.zeros(
-            (len(data_loader),n_node+1,n_node+1),
-            dtype=torch.int16
-        )
-        TR_first_t=torch.zeros(
-            (len(data_loader),n_node+1,n_node+1),
-            dtype=torch.int16
-        )
-        for seq_idx,(_,_,event_t,_) in enumerate(tqdm(data_loader,desc="Compute TR result tensor...")):
-            query_time=event_t.max().item()
-            for source in range(1,n_node+1):
-                TR_info=graph.compute_TR(
-                    source=source,
-                    query_time=query_time,
-                    max_hop=max_hop
-                )
-                for dst in range(1,n_node+1):
-                    info=TR_info[dst]
-                    if not info["r"]:
-                        continue
-
-                    TR_result[seq_idx,source,dst]=True
-                    TR_hop[seq_idx,source,dst]=int(info["hop"])
-                    TR_first_t[seq_idx,source,dst]=int(info["first_t"])
-
-                    # source node의 last_t는 -inf이므로 padding 값 0을 유지
-                    if dst!=source:
-                        TR_last_t[seq_idx,source,dst]=int(info["last_t"])
-        return {
-            "TR_label":TR_result,
-            "TR_hop":TR_hop,
-            "TR_last_t":TR_last_t,
-            "TR_first_t":TR_first_t
-        }
-
-    @staticmethod
-    def get_TR_sample_loader(
-            n_pair:int,
-            start_query_time:int,
-            end_query_time:int,
-            SR_result:dict[str,torch.Tensor]|None=None,
-            TR_result:dict[str,torch.Tensor]|None=None,
-            sampling:Literal["random","hard"]=f"random"
-        ):
-        """
-        Walk-based model 학습을 위한 TR sample data_loader 생성 후 반환
-        """
-
-    @staticmethod
     def get_TR_sample_list(
-            n_pair:int,
             data_loader:DataLoader,
-            SR_result:dict[str,torch.Tensor]|None=None,
+            n_sample:int=1000,
+            n_pair:int=10,
             TR_result:dict[str,torch.Tensor]|None=None,
-            sampling:Literal["random","hard"]=f"random",
-            pos_hard_ratio:float=0.5,
-            neg_hard_ratio:float=0.5
-        ):
+            sampling:Literal["random","focused","hop_range"]=f"random"
+        )->list[dict[str,torch.Tensor]]:
         """
         Input:
-            n_pair
             data_loader
-            SR_result
+            n_pair
             TR_result
             sampling
-            pos_hard_ratio
-            neg_hard_ratio
         Return:
             TR_sample_list
         """
-        if SR_result is not None:
-            SR_label=SR_result["SR_label"]
-            SR_hop=SR_result["SR_hop"]
-        TR_label=TR_result["TR_label"]
-        TR_hop=TR_result["TR_hop"]
-        TR_last_t=TR_result["TR_last_t"]
+        TR_label=TR_result["label"]
+        TR_hop=TR_result["hop"]
         TR_sample_list=[]
-        for batch_idx,(src,dst,event_t,_) in tqdm(
+        for batch_idx,(_,dst,event_t,_) in tqdm(
                 enumerate(data_loader),
                 desc="Generating TR samples..."
             ):
-            sources=torch.unique(torch.cat([src,dst])).tolist()
-            start_query_time=event_t.min().item()
-            end_query_time=event_t.max().item()
+            query_time=event_t.max().item()
             match sampling:
                 case "random":
-                    TR_sample=TR_Sampling.random_TR_sampling(
-                        sources=sources,
+                    TR_sample=SamplingUtils.random_TR_sampling(
+                        n_sample=n_sample,
                         n_pair=n_pair,
-                        query_time=end_query_time,
+                        query_time=query_time,
                         TR_label=TR_label[batch_idx]
                     )
-                case "hard":
-                    TR_sample=TR_Sampling.hard_TR_sampling(
-                        sources=sources,
+                case "focused":
+                    TR_sample=SamplingUtils.dst_focused_random_TR_sampling(
+                        n_sample=n_sample,
                         n_pair=n_pair,
-                        start_query_time=start_query_time,
-                        end_query_time=end_query_time,
-                        SR_label=SR_label[batch_idx],
-                        SR_hop=SR_hop[batch_idx],
+                        dst=dst,
+                        query_time=query_time,
+                        TR_label=TR_label[batch_idx]
+                    )
+                case "hop_range":
+                    TR_sample=SamplingUtils.hop_range_random_TR_sampling(
+                        n_sample=n_sample,
+                        query_time=query_time,
                         TR_label=TR_label[batch_idx],
-                        TR_hop=TR_hop[batch_idx],
-                        TR_last_t=TR_last_t[batch_idx],
-                        pos_hard_ratio=pos_hard_ratio,
-                        neg_hard_ratio=neg_hard_ratio
+                        TR_hop=TR_hop[batch_idx]
                     )
             TR_sample_list.append(TR_sample)
         return TR_sample_list

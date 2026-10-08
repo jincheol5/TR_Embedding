@@ -3,152 +3,141 @@ import torch.nn.functional as F
 
 class ReaCH_TGN_Utils:
     @staticmethod
-    def Temporal_Augmentation(
+    def augment_event_t(
             event_t:torch.Tensor,
-            jitter_std:float=0.01,
-            jitter_range:float=0.01,
-        ):
+            gaussian_noise_std:float=1.0,
+            uniform_jitter:float=0.1
+        )->torch.Tensor:
         """
-        ReaCH-TGN Temporal Augmentation.
-        
-        1. Event Drop -> NT-Xent Loss 계산 명확성을 위해 해당 과정 미구현
-        2. Timestamp Jitter
-            - Gaussian noise
-            - Uniform jitter
-        
-        Timestamp 증강으로 batch 내 이벤트들의 순서 바뀌어도 그대로 유지
+        Temporal Augmentation
+        각 temporal edge의 timestamp에 Gaussian noise와 작은 uniform jitter를 추가한다.
 
         Input:
-            event_t: [B,]
-            jitter_std: float
-            jitter_range: float
+            gaussian_noise_std: Gaussian noise의 표준편차
+            uniform_jitter: Uniform jitter 범위 (day), 예: 0.1 = 약 2.4시간
         Return:
             augmented_event_t: [B,]
         """
-        # Gaussian timestamp jitter
-        augmented_event_t=event_t+torch.randn_like(event_t)*jitter_std
-        # Uniform timestamp jitter
-        augmented_event_t=augmented_event_t+(torch.rand_like(event_t)*2-1)*jitter_range
+        ### Gaussian noise
+        gaussian_noise=(torch.randn_like(event_t)*gaussian_noise_std)
+
+        ### Small uniform jitter
+        uniform_noise=(torch.rand_like(event_t)*2.0-1.0)*uniform_jitter
+
+        ### Timestamp jitter
+        augmented_event_t=event_t+gaussian_noise+uniform_noise
         return augmented_event_t
 
     @staticmethod
     def compute_NT_Xent_Loss(
-            src:torch.Tensor,
-            dst:torch.Tensor,
             Z_src_A:torch.Tensor,
             Z_dst_A:torch.Tensor,
             Z_src_B:torch.Tensor,
             Z_dst_B:torch.Tensor,
             temperature:float=0.5
-        ):
+        )->torch.Tensor:
         """
-        대조 학습을 위한 NT_Xent Loss 계산
-        positive pair: node ID가 같은 embedding 표현
+        Compute NT-Xent Loss
 
-        Z_src_A: A augmentation view의 src node embedding 
-        Z_dst_A: A augmentation view의 dst node embedding 
-        Z_src_B: B augmentation view의 src node embedding 
-        Z_dst_B: B augmentation view의 dst node embedding 
+        동일 sample에서 생성된 View A와 View B의 embedding을 positive pair로 사용한다.
+
+        Positive pairs:
+            Z_src_A[i] <-> Z_src_B[i]
+            Z_dst_A[i] <-> Z_dst_B[i]
 
         Input:
-            src: [B,] source node ID
-            dst: [B,] destination node ID
-            Z_src_A: [B,embed_dim]
-            Z_dst_A: [B,embed_dim]
-            Z_src_B: [B,embed_dim]
-            Z_dst_B: [B,embed_dim]
-            temperature: float
+            Z_src_A: [B, D]
+            Z_dst_A: [B, D]
+            Z_src_B: [B, D]
+            Z_dst_B: [B, D]
+            temperature: temperature parameter
+
         Return:
-            NT_Xent Loss
+            loss: scalar
         """
-        # 각 view의 node embedding 결합
+
+        ### 각 view의 embedding 결합
         Z_A=torch.cat([Z_src_A,Z_dst_A],dim=0) # [2B,D]
         Z_B=torch.cat([Z_src_B,Z_dst_B],dim=0) # [2B,D]
 
-        # cosine similarity 계산을 위한 normalization
+        ### Cosine similarity를 위한 normalization
         Z_A=F.normalize(Z_A,dim=1)
         Z_B=F.normalize(Z_B,dim=1)
 
-        # 두 view 결합
+        ### 두 augmented view 결합
         Z=torch.cat([Z_A,Z_B],dim=0) # [4B,D]
-        node_ids=torch.cat([src,dst],dim=0) # [2B]
-        all_node_ids=torch.cat([node_ids,node_ids],dim=0) # [4B]
+        N=Z_A.size(0) # 2B
 
-        # pairwise cosine similarity
+        ### Pairwise cosine similarity / temperature
         logits=Z@Z.T/temperature # [4B,4B]
 
-        # 자기 자신과의 similarity 제외
-        self_mask=torch.eye(
-            Z.size(0),
-            dtype=torch.bool,
-            device=Z.device
-        )
+        ### 자기 자신 제외
+        self_mask=torch.eye(2*N,dtype=torch.bool,device=Z.device)
         logits=logits.masked_fill(self_mask,float("-inf"))
 
-        # view와 위치에 관계없이 node ID가 같은 모든 표현을 positive로 사용
-        positive_mask=(
-            all_node_ids.unsqueeze(0)==all_node_ids.unsqueeze(1)
-        )&~self_mask
+        ### log denominator
+        log_prob=(logits-torch.logsumexp(logits,dim=1,keepdim=True))
 
-        # 각 anchor에 대한 multi-positive NT-Xent loss
-        log_prob=logits-torch.logsumexp(logits,dim=1,keepdim=True)
-        positive_count=positive_mask.sum(dim=1)
-        loss_per_anchor=-(
-            log_prob.masked_fill(~positive_mask,0.0).sum(dim=1)
-            /positive_count
-        )
-        return loss_per_anchor.mean()
+        ### 각 anchor에 대응하는 positive index
+        # A[i] -> B[i]
+        # B[i] -> A[i]
+        positive_idx=torch.cat([
+            torch.arange(N,2*N,device=Z.device),
+            torch.arange(0,N,device=Z.device)
+        ])
+
+        ### NT-Xent loss
+        loss=-log_prob[
+            torch.arange(2*N,device=Z.device),
+            positive_idx
+        ].mean()
+        return loss
 
     @staticmethod
     def compute_hop_based_penalty(
             pair_hop:torch.Tensor,
-            max_hop:int=5,
-            gamma:float=1.0
-        ):
+            max_hop:int,
+            penalty_exponent:float=1.0
+        )->torch.Tensor:
         """
         Hop-Based Penalty
         Positive node pair loss에 대해서만 적용
         Hop이 짧을수록 더 큰 weight를 부여
-        w_hop(h)=(H_max-h+1)^gamma
+        
+        w_hop = (max_hop-pair_hop+1)^penalty_exponent
 
         Input:
             pair_hop: [N_pos,] long tensor
-            max_hop: 최대 hop
-            gamma: hop weight 감소 정도
+            max_hop: 최대 hop, n_node-1
+            penalty_exponent: hop weight 감소 정도
         Return:
             weight: [N_pos,] float tensor
         """
-        weight=(max_hop-pair_hop+1).float().pow(gamma)
-        return weight # positive pair의 BCE loss를 sample별로 계산한 뒤 hop weight를 곱해주면 된다: pos_loss=pos_loss*hop_weight
+        weight=(max_hop-pair_hop+1).float().pow(penalty_exponent)
+        return weight 
 
     @staticmethod
     def compute_time_gap_penalty(
             pair_first_t:torch.Tensor,
             query_time:float,
-            decay_lambda:float=0.01
-        ):
+            decay_coefficient:float=0.01
+        )->torch.Tensor:
         """
         Time-Gap Penalty
         Positive node pair loss에 대해서만 적용
         Query time과 temporal path의 최초 event 시간 차이가 클수록 작은 weight를 부여
 
-        decay_lambda = 시간 차이(time gap)가 커질 때 weight를 얼마나 빠르게 감소시킬지를 결정하는 지수 감쇠 계수
-        Timestamp가 unix seconde 인 경우 decay_lambda=1e-5 정도 수준으로 해야함
-        ReaCH-TGN의 경우 timestamp가 일 단위로 이산화 되었기 때문에 decay_lambda=0.01  
-
-        w_time(Δt)=exp(-lambda*Δt)
-        Δt=query_time-first_t
+        w_time = exp(-decay_coefficient * Δt)
+        Δt = query_time - first_t
 
         Input:
             pair_first_t: [N_pos,] float tensor
             query_time: query 시점
-            decay_lambda: 시간 감쇠 계수
+            decay_lambda: 시간 차이(time gap)가 커질 때 weight를 얼마나 빠르게 감소시킬지를 결정하는 지수 감쇠 계수
 
         Return:
             weight: [N_pos,] float tensor
         """
         time_gap=query_time-pair_first_t
-        weight=torch.exp(
-            -decay_lambda*time_gap
-        )
-        return weight # 이후 hop penalty와 함께 사용 -> weight=hop_weight*time_weight
+        weight=torch.exp(-decay_coefficient*time_gap)
+        return weight

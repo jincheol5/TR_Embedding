@@ -1,6 +1,5 @@
 import numpy as np
 import torch
-import torch.nn.functional as F
 from graph import DyGFormer_Graph
 
 class DyGFormer_Module:
@@ -15,13 +14,11 @@ class DyGFormer_Module:
             node_seq_list:list,
             edge_seq_list:list,
             ts_seq_list:list,
-            patch_size:int,
-            max_seq_len:int
+            patch_size:int
         ):
         """
         batch 안의 여러 노드에 대해 길이가 서로 다른 historical interaction sequence를 같은 길이로 맞추고, 그 길이를 patch_size의 배수로 만든다.
-        batch 내 sequence의 최대 sequence length를 4의 배수로 맞춰서(부족할경우 올려서) 최종 shape를 [B,final_seq_len,element_dim]으로 맞춘다 (final_seq_len = 최종 기준 seq len). 
-        최대 sequence length길이가 너무 긴 경우 max_seq_len로 맞춰서 가장 최근 interaction들을 유지한다. 
+        batch 내 sequence의 최대 sequence length를 patch_size의 배수로 맞춰서(부족할경우 올려서) 최종 shape를 [B,final_seq_len,element_dim]으로 맞춘다 (final_seq_len = 최종 기준 seq len). 
         CPU에서 수행한다.
 
         Input:
@@ -29,7 +26,6 @@ class DyGFormer_Module:
             edge_seq_list: list of each node's history edge sequence
             ts_seq_list: list of each node's history timespan sequence
             patch_size: int
-            max_seq_len: 허용 가능한 최대 sequence 길이
         Return:
             node_seq: [B,seq_len] 
             node_seq_vec: [B,seq_len,node_dim] 
@@ -38,29 +34,43 @@ class DyGFormer_Module:
         """
         batch_size=len(node_seq_list)
 
-        # max_seq_len보다 긴 sequence의 경우 최근 interaction만 유지
-        for i in range(batch_size):
-            node_seq_list[i]=node_seq_list[i][-max_seq_len:]
-            edge_seq_list[i]=edge_seq_list[i][-max_seq_len:]
-            ts_seq_list[i]=ts_seq_list[i][-max_seq_len:]
+        # batch 내 최대 sequence 길이
+        max_batch_seq_len=max(
+            len(seq) for seq in node_seq_list
+        )
 
-        # batch 내 최대 sequence 길이를 patch_size 배수로 맞춤
-        seq_len=max(len(seq) for seq in node_seq_list)
-        seq_len=((seq_len+patch_size-1)//patch_size)*patch_size
+        # patch_size의 배수로 올림
+        seq_len=((max_batch_seq_len+patch_size-1)//patch_size)*patch_size
 
-        # padding (padding value=0)
-        node_seq=np.zeros((batch_size,seq_len),dtype=np.int64)
-        edge_seq=np.zeros((batch_size,seq_len),dtype=np.int64)
-        ts_seq=np.zeros((batch_size,seq_len),dtype=np.float32)
+        # padding array 생성
+        # padding value = 0
+        node_seq=np.zeros(
+            (batch_size,seq_len),
+            dtype=np.int64
+        )
+        edge_seq=np.zeros(
+            (batch_size,seq_len),
+            dtype=np.int64
+        )
+        ts_seq=np.zeros(
+            (batch_size,seq_len),
+            dtype=np.float32
+        )
+
+        # sequence를 앞에서부터 저장
+        # 남는 오른쪽 영역은 padding
         for i in range(batch_size):
             n=len(node_seq_list[i])
             node_seq[i,:n]=node_seq_list[i]
             edge_seq[i,:n]=edge_seq_list[i]
             ts_seq[i,:n]=ts_seq_list[i]
+
+        # numpy -> torch
         node_seq=torch.from_numpy(node_seq)
         edge_seq=torch.from_numpy(edge_seq)
         ts_seq=torch.from_numpy(ts_seq).unsqueeze(-1)
 
+        # feature lookup
         node_seq_vec=self.node_ft[node_seq]
         edge_seq_vec=self.edge_ft[edge_seq]
         return {
@@ -70,8 +80,7 @@ class DyGFormer_Module:
             "ts_seq":ts_seq
         }
 
-    def get_co_occurrence_vec(
-            self,
+    def get_co_occurrence_vec(self,
             src_seq:torch.Tensor,
             dst_seq:torch.Tensor
         ):

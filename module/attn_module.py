@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class TemporalGraphAttn(nn.Module):
     """
-    torch.nn.MultiheadAttention은 embed_dim % num_heads=0 이여야 함
+    Q/K/V를 n_head의 배수 차원으로 투영한 뒤 multi-head attention 수행
     """
     def __init__(self,
             input_dim:int,
@@ -22,18 +22,20 @@ class TemporalGraphAttn(nn.Module):
 
         self.q_dim=input_dim+time_dim
         self.kv_dim=input_dim+edge_dim+time_dim
-        if not self.q_dim%n_head==0:
-            raise Exception(f"query_dim(input_dim+time_dim) % n_head = 0이여야 합니다.")
+        self.attn_dim=((self.q_dim+n_head-1)//n_head)*n_head # n_head의 배수로 올림
+
+        self.query_proj=nn.Linear(self.q_dim,self.attn_dim)
+        self.key_proj=nn.Linear(self.kv_dim,self.attn_dim)
+        self.value_proj=nn.Linear(self.kv_dim,self.attn_dim)
+
         self.multi_head_attn=nn.MultiheadAttention(
-            embed_dim=self.q_dim,
-            kdim=self.kv_dim,
-            vdim=self.kv_dim,
+            embed_dim=self.attn_dim,
             num_heads=n_head,
             batch_first=True # [batch_size,seq_len,embed_dim]
         )
         self.MLPs=nn.Sequential(
             nn.Linear(
-                in_features=self.q_dim+self.input_dim,
+                in_features=self.attn_dim+self.input_dim,
                 out_features=self.latent_dim
             ),
             nn.ReLU(),
@@ -78,6 +80,10 @@ class TemporalGraphAttn(nn.Module):
             dim=2
         ) # -> [B,K,kv_dim]
 
+        query=self.query_proj(query)
+        key=self.key_proj(key)
+        value=self.value_proj(value)
+
         ### transform n_mask for nn.MultiheadAttention's key_padding_mask
         # key_padding_mask에서는 True가 padding될 neighbor을 의미
         key_padding_mask=~neighbor_mask
@@ -88,30 +94,30 @@ class TemporalGraphAttn(nn.Module):
         # fake neighbor 에만 attn이 집중되도록 강제
         # 이후 처리 
         invalid_neighbor_mask=key_padding_mask.all(dim=1,keepdim=True) # [B,1], true=유효 neighbor 없음, false=유효 neighbor 존재
-        key_padding_mask[invalid_neighbor_mask.squeeze(),0]=False 
+        key_padding_mask[invalid_neighbor_mask.squeeze(-1),0]=False
 
         ### Multi-head attention
-        # query: [B,1,q_dim]
-        # key:   [B,K,kv_dim]
-        # value: [B,K,kv_dim]
+        # query: [B,1,attn_dim]
+        # key:   [B,K,attn_dim]
+        # value: [B,K,attn_dim]
         attn_output,_=self.multi_head_attn(
             query=query,
             key=key,
             value=value,
             key_padding_mask=key_padding_mask,
             need_weights=False
-        ) # attn_output: [B,1,q_dim], attn_weight: None
-        attn_output=attn_output.squeeze(dim=1) # -> [B,q_dim]
+        ) # attn_output: [B,1,attn_dim], attn_weight: None
+        attn_output=attn_output.squeeze(dim=1) # -> [B,attn_dim]
 
         ### 이웃노드가 없는 target node의 attn 결과 feature를 0 tensor으로 후처리
         attn_output=attn_output.masked_fill(invalid_neighbor_mask,0) # mask_fill: mask=True인 위치를 value로 덮어쓰기
 
         ### MLPs
-        tar_vec=tar_vec.squeeze() # -> [B,input_dim]
+        tar_vec=tar_vec.squeeze(1) # -> [B,input_dim]
         ffn_input=torch.cat(
             [attn_output,tar_vec],
             dim=-1
-        ) # -> [B,q_dim||input_dim]
+        ) # -> [B,attn_dim+input_dim]
         output=self.MLPs(ffn_input) # [B,embed_dim]
         return output
 

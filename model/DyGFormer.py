@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from graph import DyGFormer_Graph
-from module import TimeEncoder,TransformerEncoderBlock,DyGFormer_Module
+from module import TimeEncoder,TransformerEncoderBlock,DyGFormer_Module,TR_Decoder
 
 class DyGFormer(nn.Module):
     def __init__(self,
@@ -13,11 +13,10 @@ class DyGFormer(nn.Module):
             common_dim:int,
             embed_dim:int,
             graph:DyGFormer_Graph,
-            n_neighbor:int,
             n_layer:int,
             n_head:int,
-            patch_size:int,
-            max_seq_len:int
+            max_history_len:int,
+            patch_size:int
         ):
         super().__init__()
         self.node_dim=node_dim
@@ -28,16 +27,13 @@ class DyGFormer(nn.Module):
         self.common_dim=common_dim
         self.embed_dim=embed_dim
         self.graph=graph
-        self.n_neighbor=n_neighbor
         self.n_layer=n_layer
         self.n_head=n_head
+        self.max_history_len=max_history_len
         self.patch_size=patch_size
-        self.max_seq_len=max_seq_len
 
         # DyGFormer Module
-        self.module=DyGFormer_Module(
-            graph=graph
-        )
+        self.module=DyGFormer_Module(graph=graph)
 
         # time encoder
         self.time_encoder=TimeEncoder(time_dim=time_dim)
@@ -90,9 +86,9 @@ class DyGFormer(nn.Module):
         )
 
         # decoder
-        self.decoder=nn.Linear(
-            in_features=embed_dim+embed_dim,
-            out_features=1
+        self.decoder=TR_Decoder(
+            embed_dim=embed_dim,
+            latent_dim=latent_dim
         )
 
     def forward(self,
@@ -122,14 +118,13 @@ class DyGFormer(nn.Module):
         Return:
             pred_logit: [B,1]
         """
-        batch_size=src.size(0) # B
         device=src.device
 
         ### 1. get sequence data
         src_result=self.graph.get_history_seq(
             node=src,
             event_t=event_t,
-            n_neighbor=self.n_neighbor
+            max_history_len=self.max_history_len
         )
         src_node_seq_list=src_result["node"]
         src_edge_seq_list=src_result["edge"]
@@ -138,7 +133,7 @@ class DyGFormer(nn.Module):
         dst_result=self.graph.get_history_seq(
             node=dst,
             event_t=event_t,
-            n_neighbor=self.n_neighbor
+            max_history_len=self.max_history_len
         )
         dst_node_seq_list=dst_result["node"]
         dst_edge_seq_list=dst_result["edge"]
@@ -149,8 +144,7 @@ class DyGFormer(nn.Module):
             node_seq_list=src_node_seq_list,
             edge_seq_list=src_edge_seq_list,
             ts_seq_list=src_ts_seq_list,
-            patch_size=self.patch_size,
-            max_seq_len=self.max_seq_len
+            patch_size=self.patch_size
         )
         src_seq=src_result["node_seq"]
         src_ts_seq=src_result["ts_seq"]
@@ -161,8 +155,7 @@ class DyGFormer(nn.Module):
             node_seq_list=dst_node_seq_list,
             edge_seq_list=dst_edge_seq_list,
             ts_seq_list=dst_ts_seq_list,
-            patch_size=self.patch_size,
-            max_seq_len=self.max_seq_len
+            patch_size=self.patch_size
         )
         dst_seq=dst_result["node_seq"]
         dst_ts_seq=dst_result["ts_seq"]
@@ -193,6 +186,10 @@ class DyGFormer(nn.Module):
         ### 5. encoding timespan using time_encoder
         src_ts_seq_vec=self.time_encoder(src_ts_seq) 
         dst_ts_seq_vec=self.time_encoder(dst_ts_seq)
+
+        # 공식 구현과 동일하게 패딩 위치의 시간 벡터를 0으로 설정
+        src_ts_seq_vec[src_seq==0]=0.0
+        dst_ts_seq_vec[dst_seq==0]=0.0
 
         ### 6. encoding co_vec using NCoE
         src_co_vec_0=src_co_vec[:,:,0:1] 
@@ -254,11 +251,7 @@ class DyGFormer(nn.Module):
         ### 10. apply transformer encoder
         for transformer_encoder in self.transformer_encoders:
             z=transformer_encoder(z)
-        src_z,dst_z=torch.split(
-            z,
-            [src_l,dst_l],
-            dim=1
-        )
+        src_z,dst_z=torch.split(z,[src_l,dst_l],dim=1)
 
         ### 11. get Time-aware Node Representation h
         src_h=src_z.mean(dim=1) # [B,4 x patch_dim]
@@ -268,6 +261,8 @@ class DyGFormer(nn.Module):
         src_h,dst_h=torch.chunk(h,chunks=2,dim=0) # [B,output_dim]
 
         ### 12. predict TR
-        pair_vec=torch.concat([src_h,dst_h],dim=-1) # [B,output_dim+output_dim]
-        pred_logit=self.decoder(pair_vec) # [B,1]
+        pred_logit=self.decoder(
+            src_vec=src_h,
+            dst_vec=dst_h
+        ) # [B,1]
         return pred_logit

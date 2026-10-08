@@ -1,9 +1,7 @@
-import math
 import torch
 import torch.nn as nn
 from graph import TGN_Graph
-from .time_encoder import TimeEncoder
-from .mem_module import Memory
+from .time_encoder_module import TimeEncoder
 from .attn_module import TemporalGraphAttn
 
 class EmbeddingModule(nn.Module):
@@ -55,6 +53,7 @@ class GraphEmbeddingModule(EmbeddingModule):
             graph:TGN_Graph=None,
             n_layer:int=1,
             n_neighbor:int=5,
+            use_last_state:bool=False,
             use_memory:bool=False,
             time_encoder:TimeEncoder=None
         ):
@@ -68,6 +67,7 @@ class GraphEmbeddingModule(EmbeddingModule):
         self.graph=graph
         self.n_layer=n_layer
         self.n_neighbor=n_neighbor
+        self.use_last_state=use_last_state
         self.use_memory=use_memory
         if use_memory:
             self.mem_dim=mem_dim
@@ -78,6 +78,7 @@ class GraphEmbeddingModule(EmbeddingModule):
     def compute_embedding(self,
             tar:torch.Tensor,
             tar_t:torch.Tensor,
+            last_state:torch.Tensor|None=None,
             mem_vec:torch.Tensor|None=None,
             n_layer:int=1
         ):
@@ -85,18 +86,27 @@ class GraphEmbeddingModule(EmbeddingModule):
         Input:
             tar: [n_tar,]
             tar_t: [n_tar,]
-            mem_vec: [n_tar,mem_dim]
+            last_state: [N+1,]
+            mem_vec: [N+1,mem_dim]
             n_layer: int
         Return:
             updated_tar_ft: [n_tar,output_dim]
         """
-        tar_ft=self.graph.get_node_ft(node=tar) # [n_tar,node_dim]
-        if mem_vec is not None:
+        ### set tar_ft
+        if self.use_last_state and last_state is not None:
+            tar_ft=self.graph.get_node_ft(node=tar) # [n_tar,node_dim]
+            tar_last_state=last_state[tar].unsqueeze(-1) # [n_tar,1]
+            tar_ft=torch.cat([tar_last_state,tar_ft],dim=-1) # [n_tar,1+node_dim]
+        else:
+            tar_ft=self.graph.get_node_ft(node=tar) # [n_tar,node_dim]
+
+        ### set tar_mem
+        if self.use_memory and mem_vec is not None:
             tar_mem=mem_vec[tar]
             tar_ft=torch.concat(
                 [tar_ft,tar_mem],
                 dim=-1
-            ) # [n_tar,node_dim+mem_dim]
+            ) # [n_tar,node_dim+mem_dim] or [n_tar,1+node_dim+mem_dim]
 
         if n_layer==0:
             return tar_ft
@@ -104,6 +114,7 @@ class GraphEmbeddingModule(EmbeddingModule):
             tar_vec=self.compute_embedding(
                 tar=tar,
                 tar_t=tar_t,
+                last_state=last_state,
                 mem_vec=mem_vec,
                 n_layer=n_layer-1
             ) # [n_tar,tar_dim] if n_layer=1 else # [n_tar,output_dim]
@@ -134,6 +145,7 @@ class GraphEmbeddingModule(EmbeddingModule):
             neighbor_vec=self.compute_embedding(
                 tar=neighbor,
                 tar_t=neighbor_t,
+                last_state=last_state,
                 mem_vec=mem_vec,
                 n_layer=n_layer-1
             ) # [n_tar x n_neighbor,tar_dim] if n_layer=1 else [n_tar x n_neighbor,output_dim] 
@@ -178,6 +190,7 @@ class GraphSumEmbedding(GraphEmbeddingModule):
             graph:TGN_Graph=None,
             n_layer:int=1,
             n_neighbor:int=5,
+            use_last_state:bool=False,
             use_memory:bool=False,
             time_encoder:TimeEncoder=None
         ):
@@ -191,21 +204,22 @@ class GraphSumEmbedding(GraphEmbeddingModule):
             graph=graph,
             n_layer=n_layer,
             n_neighbor=n_neighbor,
+            use_last_state=use_last_state,
             use_memory=use_memory,
             time_encoder=time_encoder
         )
         # module
-        input_dim=node_dim+mem_dim if self.use_memory else node_dim
+        layer_0_input_dim=(1 if self.use_last_state else 0)+node_dim+(mem_dim if self.use_memory else 0)
         self.linear_1=torch.nn.ModuleList([
             nn.Linear(
-                in_features=(input_dim if idx==0 else embed_dim)+edge_dim+time_dim,
+                in_features=(layer_0_input_dim if idx==0 else embed_dim)+edge_dim+time_dim,
                 out_features=embed_dim
             )
             for idx in range(n_layer)
         ])
         self.linear_2=torch.nn.ModuleList([
             nn.Linear(
-                in_features=(input_dim if idx==0 else embed_dim)+time_dim+embed_dim,
+                in_features=(layer_0_input_dim if idx==0 else embed_dim)+time_dim+embed_dim,
                 out_features=embed_dim
             )
             for idx in range(n_layer)
@@ -278,7 +292,8 @@ class GraphAttnEmbedding(GraphEmbeddingModule):
             n_layer:int=1,
             n_neighbor:int=5,
             n_head:int=1,
-            use_memory:bool=True,
+            use_last_state:bool=False,
+            use_memory:bool=False,
             time_encoder:TimeEncoder=None
         ):
         super(GraphAttnEmbedding,self).__init__(
@@ -291,11 +306,12 @@ class GraphAttnEmbedding(GraphEmbeddingModule):
             graph=graph,
             n_layer=n_layer,
             n_neighbor=n_neighbor,
+            use_last_state=use_last_state,
             use_memory=use_memory,
             time_encoder=time_encoder
         )
         # module
-        layer_0_input_dim=node_dim+mem_dim if self.use_memory else node_dim
+        layer_0_input_dim=(1 if self.use_last_state else 0)+node_dim+(mem_dim if self.use_memory else 0)
         self.attn_layers=torch.nn.ModuleList([
                 TemporalGraphAttn(
                     input_dim=layer_0_input_dim if idx==0 else embed_dim,
