@@ -3,24 +3,18 @@ import numpy as np
 import torch
 from .temporal_graph import TemporalGraph
 
-class TGN_Graph(TemporalGraph):
+class GNN_Graph(TemporalGraph):
     def __init__(self,
             graph_df:pd.DataFrame,
             node_ft:np.ndarray=None,
             edge_ft:np.ndarray=None,
             node_dim:int=32,
-            edge_dim:int=32
+            edge_dim:int=32,
+            one_hot:bool=False
         ):
-        super().__init__(graph_df=graph_df)
-        # set node_ft, edge_ft, node_dim, edge_dim
-        if node_ft is None: 
-            self.set_node_ft(node_dim=node_dim)
-        else: 
-            self.set_node_ft(node_ft=node_ft)
-        if edge_ft is None: 
-            self.set_edge_ft(edge_dim=edge_dim)
-        else: 
-            self.set_edge_ft(edge_ft=edge_ft)
+        super().__init__(graph_df=graph_df,)
+        self.set_node_ft(node_ft=node_ft,node_dim=node_dim,one_hot=one_hot)
+        self.set_edge_ft(edge_ft=edge_ft,edge_dim=edge_dim)
 
     def to_device(self,device:torch.device):
         self.node_ft=self.node_ft.to(device)
@@ -28,23 +22,29 @@ class TGN_Graph(TemporalGraph):
 
     def set_node_ft(self,
             node_ft:np.ndarray=None,
-            node_dim:int=32
+            node_dim:int=32,
+            one_hot:bool=False
         ):
         """
-        Node Feature 설정.
-        node_ft=None 인 경우 모두 zero vector로 설정.
-
         Input:
-            node_ft:
-                np.ndarray of shape (n_node+1,node_dim) 또는 None.
+            node_ft_np: 
+                np.ndarray of shape (n_node+1, node_dim) 또는 None.
                 0번째 행은 padding node feature (zero vector).
-            node_dim:
-                node_ft가 None인 경우 사용할 feature dimension.
+            node_dim: int
+            one_hot: True이면 node_ft, node_dim 대신 n_node 차원의 원 핫 벡터 생성.
+                node_id=i (1~n_node)는 i-1번째 원소가 1, node_id=0은 제로 벡터.
         """
-        if node_ft is None:
-            self.node_dim=node_dim
+        if one_hot:
+            self.node_dim=self.n_node
             self.node_ft=torch.zeros(
                 (self.n_node+1,self.node_dim),
+                dtype=torch.float32
+            )
+            self.node_ft[1:].diagonal().fill_(1)
+        elif node_ft is None:
+            self.node_dim=node_dim
+            self.node_ft=torch.zeros(
+                (self.n_node+1,node_dim),
                 dtype=torch.float32
             )
         else:
@@ -56,20 +56,17 @@ class TGN_Graph(TemporalGraph):
             edge_dim:int=32
         ):
         """
-        Edge Feature 설정.
-        edge_ft=None 인 경우 모두 zero vector로 설정.
-        
         Input:
-            edge_ft:
-                np.ndarray of shape (n_event+1,edge_dim) 또는 None.
-                0번째 행은 padding edge feature (zero vector).
-            edge_dim:
-                edge_ft가 None인 경우 사용할 feature dimension.
+            edge_ft_np: 
+                np.ndarray of shape (n_edge+1, edge_dim)
+                0번째 행은 padding edge의 feature(보통 zero vector).
+                None이면 one feature 생성.
+            edge_dim: int
         """
         if edge_ft is None:
             self.edge_dim=edge_dim
             self.edge_ft=torch.zeros(
-                (self.n_event+1,self.edge_dim),
+                (self.n_event+1,edge_dim),
                 dtype=torch.float32
             )
         else:
@@ -123,8 +120,8 @@ class TGN_Graph(TemporalGraph):
 
         neighbor=torch.zeros((n_tar,n_neighbor),dtype=torch.long)
         neighbor_edge=torch.zeros((n_tar,n_neighbor),dtype=torch.long)
-        neighbor_t=torch.zeros((n_tar,n_neighbor),dtype=torch.float32)
-        neighbor_ts=torch.zeros((n_tar,n_neighbor),dtype=torch.float32)
+        neighbor_t=torch.zeros((n_tar,n_neighbor),dtype=torch.int64)
+        neighbor_ts=torch.zeros((n_tar,n_neighbor),dtype=torch.int64)
 
         tar=tar.detach().cpu().tolist()
         tar_t=tar_t.detach().cpu().tolist()
@@ -136,7 +133,11 @@ class TGN_Graph(TemporalGraph):
                 continue
 
             # t < cut_time 인 첫 위치
-            cut_idx=np.searchsorted(times,cut_time,side="left")
+            cut_idx=np.searchsorted(
+                times,
+                cut_time,
+                side="left"
+            )
 
             # 최근 n_neighbor개 선택
             start_idx=max(0,cut_idx-n_neighbor)
@@ -150,10 +151,22 @@ class TGN_Graph(TemporalGraph):
 
             # 앞쪽은 padding, 뒤쪽에 실제 neighbor 저장
             offset=n_neighbor-n_selected
-            neighbor[i,offset:]=torch.as_tensor(selected_neighbors,dtype=torch.long)
-            neighbor_edge[i,offset:]=torch.as_tensor(selected_edges,dtype=torch.long)
-            neighbor_t[i,offset:]=torch.as_tensor(selected_times,dtype=torch.float32)
-            neighbor_ts[i,offset:]=torch.as_tensor(cut_time-selected_times,dtype=torch.float32)
+            neighbor[i,offset:]=torch.as_tensor(
+                selected_neighbors,
+                dtype=torch.long
+            )
+            neighbor_edge[i,offset:]=torch.as_tensor(
+                selected_edges,
+                dtype=torch.long
+            )
+            neighbor_t[i,offset:]=torch.as_tensor(
+                selected_times,
+                dtype=torch.int64
+            )
+            neighbor_ts[i,offset:]=torch.as_tensor(
+                cut_time-selected_times,
+                dtype=torch.int64
+            )
         neighbor_mask=neighbor!=0
         return {
             "neighbor":neighbor.to(device=device),

@@ -11,12 +11,12 @@ class ModelUtils:
             file_name:str,
             dataset_name:Literal[
                 "CollegeMsg",
-                "bitcoin-alpha",
-                "bitcoin-otc"
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
             ]
         ):
         file_name=file_name+".pt"
-        file_path=os.path.join(BASE_PATH,f"ID",dataset_name,file_name)
+        file_path=os.path.join(BASE_PATH,dataset_name,file_name)
         os.makedirs(os.path.dirname(file_path),exist_ok=True)
         torch.save(model.state_dict(),file_path)
         print(f"Save {file_name} model parameter!")
@@ -27,12 +27,12 @@ class ModelUtils:
             file_name:str,
             dataset_name:Literal[
                 "CollegeMsg",
-                "bitcoin-alpha",
-                "bitcoin-otc"
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
             ]
         ):
         file_name=file_name+".pt"
-        file_path=os.path.join(BASE_PATH,f"ID",dataset_name,file_name)
+        file_path=os.path.join(BASE_PATH,dataset_name,file_name)
         model.load_state_dict(torch.load(file_path))
         print(f"Load {file_name} model parameter!")
         return model

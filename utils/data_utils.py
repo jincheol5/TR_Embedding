@@ -7,19 +7,29 @@ from typing import Literal
 BASE_PATH=os.path.join("..","data")
 class DataUtils:
     @staticmethod
-    def preprocess_snap_dataset(
+    def preprocess_SNAP_dataset(
             dataset_name:Literal[
                 "CollegeMsg"
-                "bitcoin-otc",
-                "bitcoin-alpha"
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
             ]
         ):
         """
-        timestamp: UTC unix timestamp day 단위로 변환
+        Stanford Network Analysis Project (SNAP) link: https://snap.stanford.edu/data
+
+        중복 edge event가 없는 Undirected Temporal Graph로 전처리.
+
+        1. Load graph_df (node_ft, edge_ft if exists.)
+        2. Preprocess timestamp to unix timestamp second 
+        3. Remove self-loop and 중복 edge event, timestamp 기준으로 오름차순 정렬
+        4. timestamp range를 0 ~ (max_t-min_t)로 상대적 조정
+        5. Remap edge_id
+        6. Remap node_id
         """
+        ### 1. Load graph_df (node_ft, edge_ft if exists.)
         match dataset_name:
             case "CollegeMsg":
-                dataset_path=os.path.join(BASE_PATH,f"temporal_graph",dataset_name,f"{dataset_name}.txt")
+                dataset_path=os.path.join(BASE_PATH,f"temporal_graph","SNAP",dataset_name,f"{dataset_name}.txt")
                 graph_df=pd.read_csv(
                     dataset_path,
                     header=None,
@@ -27,76 +37,71 @@ class DataUtils:
                     usecols=[0,1,2],
                     names=["u","i","t"],
                 )
-            case "bitcoin-otc"|"bitcoin-alpha":
-                dataset_path=os.path.join(BASE_PATH,f"temporal_graph",dataset_name,f"{dataset_name}.csv")
+                node_ft=None
+                edge_ft=None
+            case "soc-sign-bitcoinotc"|"soc-sign-bitcoinalpha":
+                dataset_path=os.path.join(BASE_PATH,f"temporal_graph","SNAP",dataset_name,f"{dataset_name}.csv")
                 graph_df=pd.read_csv(
                     dataset_path,
                     header=None,
-                    usecols=[0,1,3],
-                    names=["u","i","t"],
+                    usecols=[0,1,2,3],
+                    names=["u","i","edge_w","t"],
                 )
+                node_ft=None
+                edge_ft=graph_df.pop("edge_w").to_numpy(dtype=np.float32).reshape(-1,1) # [E,1]
+        graph_df["idx"]=np.arange(len(graph_df)) # 원본 edge feature의 행 위치를 보존 (패딩이 없으므로 0부터 시작)
 
-        # 숫자로 변환할 수 없는 값은 결측값으로 처리한 뒤 제거
-        graph_df=graph_df[["u","i","t"]].apply(
-            pd.to_numeric,
-            errors="coerce"
-        )
-        graph_df=(
-            graph_df.dropna(subset=["u","i","t"])
+        ### 2. Preprocess timestamp to unix timestamp second
+        graph_df["t"]=(
+            pd.to_numeric(graph_df["t"],errors="raise")
             .astype(np.int64)
+        )
+
+        ### 3. Remove self-loop and 방향을 무시한 중복 edge event, timestamp 기준으로 오름차순 정렬
+        graph_df=graph_df[graph_df["u"]!=graph_df["i"]]
+        # (u,i,t)와 (i,u,t)를 같은 이벤트로 취급하고 첫 번째 원본 행만 보존
+        edge_keys=pd.DataFrame({
+            "min_node":graph_df[["u","i"]].min(axis=1),
+            "max_node":graph_df[["u","i"]].max(axis=1),
+            "t":graph_df["t"],
+        })
+        graph_df=(
+            graph_df.loc[~edge_keys.duplicated(keep="first")]
+            .sort_values(by="t",kind="stable")
             .reset_index(drop=True)
         )
 
-        # self-loop 제거
-        self_loop_mask=graph_df["u"]==graph_df["i"]
-        graph_df=graph_df.loc[~self_loop_mask].copy()
-
-        # Unix timestamp(초)를 day 단위로 변환하고 최초 시각을 0으로 조정
-        graph_df["t"]=(graph_df["t"]//(24*60*60)).astype(np.int64)
+        ### 4. timestamp range를 0 ~ (max_t-min_t)로 상대적 조정
         min_event_time=graph_df["t"].min()
         graph_df["t"]=(graph_df["t"]-min_event_time).astype(np.int64)
 
-        # 같은 방향의 동일 edge event는 하나만 유지
-        graph_df=graph_df.drop_duplicates(
-            subset=["u","i","t"],
-            keep="first"
-        )
+        ### 5. Remap edge_id
+        if edge_ft is not None:
+            edge_ft=np.vstack([
+                np.zeros((1,edge_ft.shape[1]),dtype=edge_ft.dtype),
+                edge_ft[graph_df["idx"].to_numpy()]
+            ])
+        graph_df["idx"]=np.arange(1,len(graph_df)+1)
 
-        # event time 순으로 정렬
-        graph_df=(
-            graph_df.sort_values("t",kind="stable")
-            .reset_index(drop=True)
-        )
-
-        # 모든 node ID 수집
-        node_ids=sorted(
-            set(graph_df["u"]).union(graph_df["i"])
-        )
-
-        # 기존 node ID -> 1 ~ N 매핑
-        node_mapping={
-            original_id:mapped_id
-            for mapped_id,original_id in enumerate(
-                node_ids,
-                start=1,
-            )
+        ### 6. Remap node_id
+        used_nodes=np.sort(np.unique(graph_df[["u","i"]].to_numpy()))
+        node_map={
+            old_id:new_id
+            for new_id,old_id in enumerate(used_nodes,start=1)
         }
-
-        # node ID 재매핑
-        graph_df["u"]=graph_df["u"].map(node_mapping).astype(np.int64)
-        graph_df["i"]=graph_df["i"].map(node_mapping).astype(np.int64)
-
-        # 중복 제거된 시간순 event에 맞춰 edge ID를 1 ~ E로 재매핑
-        graph_df["idx"]=np.arange(1,len(graph_df)+1,dtype=np.int64)
+        graph_df[["u","i"]]=(
+            graph_df[["u","i"]].replace(node_map).astype(int)
+        )
+        if node_ft is not None:
+            node_ft=np.vstack([
+                np.zeros((1,node_ft.shape[1]),dtype=node_ft.dtype),
+                node_ft[used_nodes]
+            ])
 
         return {
             "graph_df":graph_df,
-            "n_node":len(node_ids),
-            "max_u":graph_df["u"].max(),
-            "node_dim":None,
-            "edge_dim":None,
-            "node_ft":None,
-            "edge_ft":None
+            "node_ft":node_ft,
+            "edge_ft":edge_ft
         }
 
     @staticmethod
@@ -104,8 +109,8 @@ class DataUtils:
             TR_result:dict[str,torch.Tensor],
             dataset_name:Literal[
                 "CollegeMsg",
-                "bitcoin-alpha",
-                "bitcoin-otc"
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
             ],
             purpose:Literal["train","val","test"],
             batch_size:int
@@ -113,10 +118,10 @@ class DataUtils:
         """
         SNAP dataset들의 TR_result를 저장
 
-        file_name example: CollegeMsg_train_B100.pt
+        file_name example: CollegeMsg_train_B200.pt
         """
         file_name=f"{dataset_name}_{purpose}_B{batch_size}.pt"
-        file_path=os.path.join(BASE_PATH,"temporal_graph","TR_result",dataset_name,purpose,file_name)
+        file_path=os.path.join(BASE_PATH,"temporal_graph","SNAP",dataset_name,"TR_result",file_name)
         os.makedirs(os.path.dirname(file_path),exist_ok=True)
         torch.save(TR_result,file_path)
         print(f"Save {file_name}!")
@@ -125,13 +130,13 @@ class DataUtils:
     def load_TR_result(
             dataset_name:Literal[
                 "CollegeMsg",
-                "bitcoin-alpha",
-                "bitcoin-otc"
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
             ],
             purpose:Literal["train","val","test"],
             batch_size:int
         )->dict[str,torch.Tensor]:
         file_name=f"{dataset_name}_{purpose}_B{batch_size}.pt"
-        file_path=os.path.join(BASE_PATH,"temporal_graph","TR_result",dataset_name,purpose,file_name)
+        file_path=os.path.join(BASE_PATH,"temporal_graph","SNAP",dataset_name,"TR_result",file_name)
         TR_result=torch.load(file_path)
         return TR_result

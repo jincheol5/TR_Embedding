@@ -5,15 +5,15 @@ import numpy as np
 import torch
 from typing import Literal
 from tqdm import tqdm
-from torch.utils.data import Dataset,DataLoader
-from .sampling_utils import SamplingUtils
+from torch.utils.data import Dataset
+from graph import GNN_Graph
 
 class TemporalGraphDataset(Dataset):
-    def __init__(self,df:pd.DataFrame):
-        self.src=torch.tensor(df["u"].values,dtype=torch.long)
-        self.dst=torch.tensor(df["i"].values,dtype=torch.long)
-        self.t=torch.tensor(df["t"].values,dtype=torch.float32)
-        self.edge=torch.tensor(df["idx"].values,dtype=torch.long)
+    def __init__(self,graph_df:pd.DataFrame):
+        self.src=torch.tensor(graph_df["u"].values,dtype=torch.long)
+        self.dst=torch.tensor(graph_df["i"].values,dtype=torch.long)
+        self.t=torch.tensor(graph_df["t"].values,dtype=torch.int64)
+        self.edge=torch.tensor(graph_df["idx"].values,dtype=torch.long)
 
     def __len__(self):
         return len(self.src)
@@ -30,6 +30,7 @@ class EarlyStopper:
         self.best_loss=np.inf
         self.best_state=None
         self.early_stop=False
+
     def __call__(self,
             val_loss:float,
             model:torch.nn.Module
@@ -71,25 +72,22 @@ class EarlyStopper:
 class TrainUtils:
     @staticmethod
     def set_seed(seed:int):
-        os.environ["PYTHONHASHSEED"]=str(seed)
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic=True
-        torch.backends.cudnn.benchmark=False
+        os.environ["PYTHONHASHSEED"]=str(seed) # Python의 문자열 등에 사용하는 해시 시드를 설정
+        random.seed(seed) # Python 표준 random 모듈의 난수 시드를 고정
+        np.random.seed(seed) # NumPy의 기존 전역 난수 생성기 시드를 고정
+        torch.manual_seed(seed) # PyTorch의 CPU 및 CUDA 등 장치의 난수 시드를 설정
+        torch.backends.cudnn.deterministic=True # cuDNN이 사용하는 알고리즘을 결정적인 알고리즘으로 제한
+        torch.backends.cudnn.benchmark=False # cuDNN이 여러 알고리즘의 속도를 측정해 실행 알고리즘을 선택하는 기능 끔
 
     @staticmethod
     def split_graph_df(
-            df:pd.DataFrame,
+            graph_df:pd.DataFrame,
             train_ratio:float=0.7,
             val_ratio:float=0.15
         ):
         """
         Input:
-            df
+            graph_df
             train_ratio
             val_ratio
         Return:
@@ -97,61 +95,10 @@ class TrainUtils:
             val_df
             test_df
         """
-        n=len(df)
+        n=len(graph_df)
         train_end=int(n*train_ratio)
         val_end=int(n*(train_ratio+val_ratio))
-        train_df=df.iloc[:train_end].reset_index(drop=True)
-        val_df=df.iloc[train_end:val_end].reset_index(drop=True)
-        test_df=df.iloc[val_end:].reset_index(drop=True)
+        train_df=graph_df.iloc[:train_end].reset_index(drop=True)
+        val_df=graph_df.iloc[train_end:val_end].reset_index(drop=True)
+        test_df=graph_df.iloc[val_end:].reset_index(drop=True)
         return train_df,val_df,test_df
-
-    @staticmethod
-    def get_TR_sample_list(
-            data_loader:DataLoader,
-            n_sample:int=1000,
-            n_pair:int=10,
-            TR_result:dict[str,torch.Tensor]|None=None,
-            sampling:Literal["random","focused","hop_range"]=f"random"
-        )->list[dict[str,torch.Tensor]]:
-        """
-        Input:
-            data_loader
-            n_pair
-            TR_result
-            sampling
-        Return:
-            TR_sample_list
-        """
-        TR_label=TR_result["label"]
-        TR_hop=TR_result["hop"]
-        TR_sample_list=[]
-        for batch_idx,(_,dst,event_t,_) in tqdm(
-                enumerate(data_loader),
-                desc="Generating TR samples..."
-            ):
-            query_time=event_t.max().item()
-            match sampling:
-                case "random":
-                    TR_sample=SamplingUtils.random_TR_sampling(
-                        n_sample=n_sample,
-                        n_pair=n_pair,
-                        query_time=query_time,
-                        TR_label=TR_label[batch_idx]
-                    )
-                case "focused":
-                    TR_sample=SamplingUtils.dst_focused_random_TR_sampling(
-                        n_sample=n_sample,
-                        n_pair=n_pair,
-                        dst=dst,
-                        query_time=query_time,
-                        TR_label=TR_label[batch_idx]
-                    )
-                case "hop_range":
-                    TR_sample=SamplingUtils.hop_range_random_TR_sampling(
-                        n_sample=n_sample,
-                        query_time=query_time,
-                        TR_label=TR_label[batch_idx],
-                        TR_hop=TR_hop[batch_idx]
-                    )
-            TR_sample_list.append(TR_sample)
-        return TR_sample_list
