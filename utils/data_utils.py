@@ -140,3 +140,37 @@ class DataUtils:
         file_path=os.path.join(BASE_PATH,"temporal_graph","SNAP",dataset_name,"TR_result",file_name)
         TR_result=torch.load(file_path)
         return TR_result
+
+    @staticmethod
+    def save_sample_loader(
+            sample_loader:list[dict[str,torch.Tensor]],
+            dataset_name:Literal[
+                "CollegeMsg",
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
+            ],
+            purpose:Literal["val","test"],
+            batch_size:int,
+            seed:int
+        ):
+        file_name=f"{dataset_name}_{purpose}_B{batch_size}_S{seed}.pt"
+        file_path=os.path.join(BASE_PATH,"TR_Embedding","sample_loader",dataset_name,file_name)
+        os.makedirs(os.path.dirname(file_path),exist_ok=True)
+        torch.save(sample_loader,file_path)
+        print(f"Save {file_name}!")
+
+    @staticmethod
+    def load_sample_loader(
+            dataset_name:Literal[
+                "CollegeMsg",
+                "soc-sign-bitcoinalpha",
+                "soc-sign-bitcoinotc"
+            ],
+            purpose:Literal["val","test"],
+            batch_size:int,
+            seed:int
+        ):
+        file_name=f"{dataset_name}_{purpose}_B{batch_size}_S{seed}.pt"
+        file_path=os.path.join(BASE_PATH,"TR_Embedding","sample_loader",dataset_name,file_name)
+        sample_loader=torch.load(file_path)
+        return sample_loader

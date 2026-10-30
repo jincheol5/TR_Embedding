@@ -3,10 +3,8 @@ import random
 import pandas as pd
 import numpy as np
 import torch
-from typing import Literal
-from tqdm import tqdm
-from torch.utils.data import Dataset
-from graph import GNN_Graph
+from torch.utils.data import Dataset,DataLoader
+from .sampling_utils import Sampler
 
 class TemporalGraphDataset(Dataset):
     def __init__(self,graph_df:pd.DataFrame):
@@ -102,3 +100,39 @@ class TrainUtils:
         val_df=graph_df.iloc[train_end:val_end].reset_index(drop=True)
         test_df=graph_df.iloc[val_end:].reset_index(drop=True)
         return train_df,val_df,test_df
+
+    @staticmethod
+    def get_TR_sample_loader(
+            graph_loader:DataLoader,
+            n_sample:int,
+            n_pair:int,
+            candidates:list[int],
+            TR_label:torch.Tensor
+        )->list[dict[str,torch.Tensor]]:
+        """
+        Input:  
+            graph_loader
+            n_sample
+            n_pair
+            candidates
+            TR_label: [batch_seq_len,N+1,N+1]
+        Return:
+            TR_sample_loader
+        """
+        TR_sample_loader=[]
+        pre_TR_label=None
+        for batch_idx,(_,event_dst,event_t,_) in enumerate(graph_loader):
+            query_time=event_t.max().item()
+            batch_TR_label=TR_label[batch_idx]
+            TR_sample=Sampler.random_TR_sampling(
+                n_sample=n_sample,
+                n_pair=n_pair,
+                query_time=query_time,
+                event_dst=event_dst,
+                candidates=candidates,
+                TR_label=batch_TR_label,
+                pre_TR_label=pre_TR_label
+            )
+            pre_TR_label=TR_label[batch_idx]
+            TR_sample_loader.append(TR_sample)
+        return TR_sample_loader

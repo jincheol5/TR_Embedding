@@ -1,9 +1,10 @@
 import pandas as pd
+import numpy as np
 import torch
-from typing import Any
+from typing import Any,Literal
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from graph import TemporalGraph
+from graph import GNN_Graph,CAW_N_Graph,DyGFormer_Graph
 
 class GraphAlgorithm:
     @staticmethod
@@ -94,6 +95,55 @@ class GraphAlgorithm:
         return gamma_table
 
 class GraphUtils:
+    @staticmethod
+    def generate_model_graph(
+            model_name:Literal[
+                "TGAT",
+                "TGN",
+                "CAW-N",
+                "GraphMixer",
+                "DyGFormer",
+                "TPNet"
+            ],
+            graph_df:pd.DataFrame,
+            node_ft:np.ndarray=None,
+            edge_ft:np.ndarray=None,
+            node_dim:int=32,
+            edge_dim:int=32,
+            one_hot:bool=False,
+            **graph_config
+        ):
+        match model_name:
+            case "TGAT"|"TGN"|"GraphMixer"|"TPNet":
+                graph=GNN_Graph(
+                    graph_df=graph_df,
+                    node_ft=node_ft,
+                    edge_ft=edge_ft,
+                    node_dim=node_dim,
+                    edge_dim=edge_dim,
+                    one_hot=one_hot
+                )
+            case "CAW-N":
+                graph=CAW_N_Graph(
+                    graph_df=graph_df,
+                    node_ft=node_ft,
+                    edge_ft=edge_ft,
+                    node_dim=node_dim,
+                    edge_dim=edge_dim,
+                    n_walk=graph_config["n_walk"],
+                    walk_len=graph_config["walk_len"],
+                    alpha=graph_config["alpha"]
+                )
+            case "DyGFormer":
+                graph=DyGFormer_Graph(
+                    graph_df=graph_df,
+                    node_ft=node_ft,
+                    edge_ft=edge_ft,
+                    node_dim=node_dim,
+                    edge_dim=edge_dim
+                )
+        return graph
+
     @staticmethod
     def convert_batch_to_eventstream(
             src:torch.Tensor,
