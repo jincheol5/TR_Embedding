@@ -151,7 +151,7 @@ class GraphUtils:
             event_t:torch.Tensor
         )->list[tuple[int,int,int]]:
         """
-        (src, dst, event_t) 배치를 시간 순서를 유지하며 양방향 이벤트로 변환하여 저장
+        Convert a batch to directed events, preserving input order.
         """
         eventstream=[]
         for source,destination,timestamp in zip(
@@ -161,8 +161,6 @@ class GraphUtils:
                 destination=int(destination)
                 timestamp=int(timestamp)
                 eventstream.append((source,destination,timestamp))
-                if source!=destination:
-                    eventstream.append((destination,source,timestamp))
         return eventstream
 
     @staticmethod

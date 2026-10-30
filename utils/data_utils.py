@@ -17,7 +17,7 @@ class DataUtils:
         """
         Stanford Network Analysis Project (SNAP) link: https://snap.stanford.edu/data
 
-        중복 edge event가 없는 Undirected Temporal Graph로 전처리.
+        중복 edge event가 없는 Directed Temporal Graph로 전처리.
 
         1. Load graph_df (node_ft, edge_ft if exists.)
         2. Preprocess timestamp to unix timestamp second 
@@ -57,16 +57,10 @@ class DataUtils:
             .astype(np.int64)
         )
 
-        ### 3. Remove self-loop and 방향을 무시한 중복 edge event, timestamp 기준으로 오름차순 정렬
+        ### 3. Remove self-loops and duplicate (u,i,t) events, then sort by timestamp
         graph_df=graph_df[graph_df["u"]!=graph_df["i"]]
-        # (u,i,t)와 (i,u,t)를 같은 이벤트로 취급하고 첫 번째 원본 행만 보존
-        edge_keys=pd.DataFrame({
-            "min_node":graph_df[["u","i"]].min(axis=1),
-            "max_node":graph_df[["u","i"]].max(axis=1),
-            "t":graph_df["t"],
-        })
         graph_df=(
-            graph_df.loc[~edge_keys.duplicated(keep="first")]
+            graph_df.drop_duplicates(subset=["u","i","t"],keep="first")
             .sort_values(by="t",kind="stable")
             .reset_index(drop=True)
         )

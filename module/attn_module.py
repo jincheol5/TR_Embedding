@@ -17,27 +17,26 @@ class TemporalGraphAttn(nn.Module):
         self.time_dim=time_dim
         self.embed_dim=embed_dim
         self.n_head=n_head
-        self.attn_dim=input_dim+edge_dim+time_dim
-        if n_head<=0 or self.attn_dim % n_head!=0:
-            raise ValueError("input_dim + edge_dim + time_dim must be divisible by n_head")
+        self.raw_dim=input_dim+edge_dim+time_dim
+        self.attn_dim=((self.raw_dim+n_head-1)//n_head)*n_head
         self.head_dim=self.attn_dim//n_head
-        self.q_dim=self.attn_dim
-        self.kv_dim=self.attn_dim
+        self.q_dim=self.raw_dim
+        self.kv_dim=self.raw_dim
 
-        # One bias-free projection per Q/K/V, matching official MultiHeadAttention.
-        self.query_proj=nn.Linear(self.attn_dim,self.attn_dim,bias=False)
-        self.key_proj=nn.Linear(self.attn_dim,self.attn_dim,bias=False)
-        self.value_proj=nn.Linear(self.attn_dim,self.attn_dim,bias=False)
+        # Project Q/K/V to a dimension divisible by the number of heads.
+        self.query_proj=nn.Linear(self.raw_dim,self.attn_dim,bias=False)
+        self.key_proj=nn.Linear(self.raw_dim,self.attn_dim,bias=False)
+        self.value_proj=nn.Linear(self.raw_dim,self.attn_dim,bias=False)
         for projection in (self.query_proj,self.key_proj,self.value_proj):
             nn.init.normal_(projection.weight,mean=0,
-                            std=math.sqrt(2.0/(self.attn_dim+self.head_dim)))
-        self.output_proj=nn.Linear(self.attn_dim,self.attn_dim)
+                            std=math.sqrt(2.0/(self.raw_dim+self.head_dim)))
+        self.output_proj=nn.Linear(self.attn_dim,self.raw_dim)
         nn.init.xavier_normal_(self.output_proj.weight)
         self.attn_dropout=nn.Dropout(dropout)
         self.output_dropout=nn.Dropout(dropout)
-        self.layer_norm=nn.LayerNorm(self.attn_dim)
+        self.layer_norm=nn.LayerNorm(self.raw_dim)
         self.MLPs=nn.Sequential(
-            nn.Linear(self.attn_dim+input_dim,input_dim),
+            nn.Linear(self.raw_dim+input_dim,input_dim),
             nn.ReLU(),
             nn.Linear(input_dim,embed_dim)
         )

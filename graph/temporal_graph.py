@@ -3,7 +3,7 @@ import numpy as np
 
 class TemporalGraph:
     """
-    Undirected Temporal Graph
+    Directed Temporal Graph
     """
     def __init__(self,graph_df:pd.DataFrame):
         self.set_graph(graph_df=graph_df)
@@ -11,6 +11,7 @@ class TemporalGraph:
     def set_graph(self,graph_df:pd.DataFrame):
         ### graph information
         self.graph_df=graph_df
+        self.n_event=len(graph_df)
         self.n_node=int(max(graph_df["u"].max(),graph_df["i"].max()))
 
         # incoming adj for GNN
@@ -29,21 +30,15 @@ class TemporalGraph:
             t=int(event.t)
             edge_id=int(event.idx)
 
-            # incoming adj 양방향 저장
+            # incoming adj 저장
             in_adj[dst].append(src)
             in_adj_edge[dst].append(edge_id)
             in_adj_t[dst].append(t)
-            in_adj[src].append(dst)
-            in_adj_edge[src].append(edge_id)
-            in_adj_t[src].append(t)
 
-            # outgoing adj 양방향 저장
+            # outgoing adj 저장
             out_adj[src].append(dst)
             out_adj_edge[src].append(edge_id)
             out_adj_t[src].append(t)
-            out_adj[dst].append(src)
-            out_adj_edge[dst].append(edge_id)
-            out_adj_t[dst].append(t)
 
         ### convert list -> numpy array
         # incoming adj
