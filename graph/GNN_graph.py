@@ -1,20 +1,32 @@
 import pandas as pd
 import numpy as np
 import torch
-from .temporal_graph import TemporalGraph
+from torch.utils.data import DataLoader
 
-class GNN_Graph(TemporalGraph):
+class GNN_Graph:
+    """
+    Directed Temporal Graph
+    """
     def __init__(self,
             graph_df:pd.DataFrame,
-            node_ft:np.ndarray=None,
-            edge_ft:np.ndarray=None,
+            node_ft:np.ndarray|None=None,
+            edge_ft:np.ndarray|None=None,
             node_dim:int=32,
             edge_dim:int=32,
             one_hot:bool=False
         ):
-        super().__init__(graph_df=graph_df,)
+        # set graph info
+        self.n_node=int(max(graph_df["u"].max(),graph_df["i"].max()))
+        self.n_event=len(graph_df)
+
+        # set node, edge feature
         self.set_node_ft(node_ft=node_ft,node_dim=node_dim,one_hot=one_hot)
         self.set_edge_ft(edge_ft=edge_ft,edge_dim=edge_dim)
+
+        # incoming adj for GNN
+        self.in_adj=[[] for _ in range(self.n_node+1)]
+        self.in_adj_edge=[[] for _ in range(self.n_node+1)]
+        self.in_adj_t=[[] for _ in range(self.n_node+1)]
 
     def to_device(self,device:torch.device):
         self.node_ft=self.node_ft.to(device)
@@ -97,17 +109,60 @@ class GNN_Graph(TemporalGraph):
         else:
             return self.edge_ft[edge]
 
+    def init_in_adj(self):
+        # initialize incoming adj for GNN
+        self.in_adj=[[] for _ in range(self.n_node+1)]
+        self.in_adj_edge=[[] for _ in range(self.n_node+1)]
+        self.in_adj_t=[[] for _ in range(self.n_node+1)]
+
+    def update_in_adj(self,
+            src:torch.Tensor,
+            dst:torch.Tensor,
+            event_t:torch.Tensor,
+            edge:torch.Tensor
+        ):
+        src_list=src.cpu().tolist()
+        dst_list=dst.cpu().tolist()
+        event_t_list=event_t.cpu().tolist()
+        edge_list=edge.cpu().tolist()
+        for src,dst,t,edge_id in zip(src_list,dst_list,event_t_list,edge_list):
+            self.in_adj[dst].append(src)
+            self.in_adj_edge[dst].append(edge_id)
+            self.in_adj_t[dst].append(t)
+
+    def set_in_adj_for_evaluate(self,
+            train_loader:DataLoader,
+            val_loader:DataLoader
+        ):
+        ### set train_loader eventstream
+        for src,dst,event_t,edge in train_loader:
+            self.update_in_adj(
+                src=src,
+                dst=dst,
+                event_t=event_t,
+                edge=edge
+            )
+        ### set val_loader eventstream
+        for src,dst,event_t,edge in val_loader:
+            self.update_in_adj(
+                src=src,
+                dst=dst,
+                event_t=event_t,
+                edge=edge
+            )
+
     def get_temporal_neighbor(self,
             tar:torch.Tensor,
             tar_t:torch.Tensor,
             n_neighbor:int
         ):
         """
+        현재까지 update_in_adj로 업데이트된 eventstream으로 temporal_neighbor 계산.
+
         Input:
             tar: [n_tar,]
             tar_t: [n_tar,]
             n_neighbor: int
-
         Return:
             neighbor: [n_tar,n_neighbor]
             neighbor_mask: [n_tar,n_neighbor]
@@ -126,24 +181,18 @@ class GNN_Graph(TemporalGraph):
         tar=tar.detach().cpu().tolist()
         tar_t=tar_t.detach().cpu().tolist()
         for i,(tar_id,cut_time) in enumerate(zip(tar,tar_t)):
+            if tar_id==0 or n_neighbor==0:
+                continue
             neighbors=self.in_adj[tar_id]
             edges=self.in_adj_edge[tar_id]
             times=self.in_adj_t[tar_id]
-            if neighbors.size==0:
+            if not neighbors:
                 continue
 
-            # t < cut_time 인 첫 위치
-            cut_idx=np.searchsorted(
-                times,
-                cut_time,
-                side="left"
-            )
-
             # 최근 n_neighbor개 선택
-            start_idx=max(0,cut_idx-n_neighbor)
-            selected_neighbors=neighbors[start_idx:cut_idx]
-            selected_edges=edges[start_idx:cut_idx]
-            selected_times=times[start_idx:cut_idx]
+            selected_neighbors=neighbors[-n_neighbor:]
+            selected_edges=edges[-n_neighbor:]
+            selected_times=times[-n_neighbor:]
 
             n_selected=len(selected_neighbors)
             if n_selected==0:
@@ -159,14 +208,12 @@ class GNN_Graph(TemporalGraph):
                 selected_edges,
                 dtype=torch.long
             )
-            neighbor_t[i,offset:]=torch.as_tensor(
+            selected_times=torch.as_tensor(
                 selected_times,
                 dtype=torch.int64
             )
-            neighbor_ts[i,offset:]=torch.as_tensor(
-                cut_time-selected_times,
-                dtype=torch.int64
-            )
+            neighbor_t[i,offset:]=selected_times
+            neighbor_ts[i,offset:]=cut_time-selected_times
         neighbor_mask=neighbor!=0
         return {
             "neighbor":neighbor.to(device=device),

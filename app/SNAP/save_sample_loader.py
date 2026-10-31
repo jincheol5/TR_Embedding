@@ -23,13 +23,13 @@ def main(**kwargs):
     n_pair=5
     train_df,val_df,test_df=TrainUtils.split_graph_df(graph_df=graph_df)
     train_dataset=TemporalGraphDataset(graph_df=train_df)
-    train_candidates=train_dataset.dst.tolist()
+    train_candidates=train_dataset.src.tolist()+train_dataset.dst.tolist()
 
     val_dataset=TemporalGraphDataset(graph_df=val_df)
-    val_candidates=train_candidates+val_dataset.dst.tolist()
+    val_candidates=train_candidates+val_dataset.src.tolist()+val_dataset.dst.tolist()
 
     test_dataset=TemporalGraphDataset(graph_df=test_df)
-    test_candidates=val_candidates+test_dataset.dst.tolist()
+    test_candidates=val_candidates+test_dataset.src.tolist()+test_dataset.dst.tolist()
 
     if purpose=="val":
         val_loader=DataLoader(dataset=val_dataset,batch_size=batch_size,shuffle=False)
@@ -54,8 +54,7 @@ def main(**kwargs):
         sample_loader=sample_loader,
         dataset_name=dataset_name,
         purpose=purpose,
-        batch_size=batch_size,
-        seed=seed
+        batch_size=batch_size
     )
 
 if __name__=="__main__":

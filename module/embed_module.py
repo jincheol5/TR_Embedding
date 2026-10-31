@@ -198,4 +198,4 @@ class GraphAttnEmbedding(GraphEmbeddingModule):
             neighbor_edge_ft=neighbor_edge_ft,
             neighbor_mask=neighbor_mask
         ) # [n_tar,output_dim]
-        return output 
+        return output

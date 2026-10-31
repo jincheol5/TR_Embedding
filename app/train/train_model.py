@@ -33,29 +33,21 @@ def main(**kwargs):
         purpose="train",
         batch_size=batch_size
     )
-    val_TR_result=DataUtils.load_TR_result(
-        dataset_name=dataset_name,
-        purpose="val",
-        batch_size=batch_size
-    )
 
-    ### set train data_loader and candidates, set val data_loader, candidates, TR_sample_loader
+    ### set train_loader and candidates, val_loader // load val_sample_loader
     n_sample=200
     n_pair=5
     train_df,val_df,_=TrainUtils.split_graph_df(graph_df=graph_df)
     train_dataset=TemporalGraphDataset(graph_df=train_df)
     train_loader=DataLoader(dataset=train_dataset,batch_size=batch_size,shuffle=False)
-    train_candidates=train_dataset.dst.tolist()
+    train_candidates=train_dataset.src.tolist()+train_dataset.dst.tolist()
 
     val_dataset=TemporalGraphDataset(graph_df=val_df)
     val_loader=DataLoader(dataset=val_dataset,batch_size=batch_size,shuffle=False)
-    val_candidates=train_candidates+val_dataset.dst.tolist()
-    val_sample_loader=TrainUtils.get_TR_sample_loader(
-        graph_loader=val_loader,
-        n_sample=n_sample,
-        n_pair=n_pair,
-        candidates=val_candidates,
-        TR_label=val_TR_result["label"]
+    val_sample_loader=DataUtils.load_sample_loader(
+        dataset_name=dataset_name,
+        purpose="val",
+        batch_size=batch_size
     )
 
     """
@@ -124,6 +116,7 @@ def main(**kwargs):
             model=ModelTrainer.train(
                 model=model,
                 train_loader=train_loader,
+                val_loader=val_loader,
                 val_sample_loader=val_sample_loader,
                 train_TR_label=train_TR_result["label"],
                 **model_config

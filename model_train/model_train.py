@@ -10,10 +10,11 @@ class ModelTrainer:
     def train(
             model:nn.Module,
             train_loader:DataLoader,
+            val_loader:DataLoader,
             val_sample_loader:list,
             train_TR_label:torch.Tensor,
             **kwargs
-        ):   
+        ):
         """
         Set GPU, Optimizer
         """
@@ -47,6 +48,9 @@ class ModelTrainer:
         Train model
         """
         for epoch in tqdm(range(kwargs["epoch"]),desc=f"Model Training..."):
+            ### Epoch마다 in_adj 초기화
+            model.graph.init_in_adj()
+
             ### Epoch마다 train_sample_loader 생성
             train_sample_loader=TrainUtils.get_TR_sample_loader(
                 graph_loader=train_loader,
@@ -56,7 +60,16 @@ class ModelTrainer:
                 TR_label=train_TR_label
             )
             model.train()
-            for batch_sample in tqdm(train_sample_loader,desc=f"Training epoch {epoch+1}..."):
+            for batch_event,batch_sample in tqdm(zip(train_loader,train_sample_loader),desc=f"Training epoch {epoch+1}..."):
+                ### update in_adj of batch_eventstream
+                event_src,event_dst,event_t,event_edge=batch_event
+                model.graph.update_in_adj(
+                    src=event_src,
+                    dst=event_dst,
+                    event_t=event_t,
+                    edge=event_edge
+                )
+
                 ### TR Sample
                 src=batch_sample["src"]
                 dst=batch_sample["dst"]
@@ -87,6 +100,7 @@ class ModelTrainer:
             """
             val_result=ModelTrainer.validate(
                 model=model,
+                val_loader=val_loader,
                 val_sample_loader=val_sample_loader,
                 **kwargs
             )
@@ -119,6 +133,7 @@ class ModelTrainer:
     @staticmethod
     def validate(
             model:nn.Module,
+            val_loader:DataLoader,
             val_sample_loader:list,
             **kwargs
         ):
@@ -143,7 +158,16 @@ class ModelTrainer:
         ap_list=[]
         auc_list=[]
         with torch.no_grad():
-            for batch_sample in tqdm(val_sample_loader,desc=f"Validate..."):
+            for batch_event,batch_sample in tqdm(zip(val_loader,val_sample_loader),desc=f"Validate..."):
+                ### update in_adj of batch_eventstream
+                event_src,event_dst,event_t,event_edge=batch_event
+                model.graph.update_in_adj(
+                    src=event_src,
+                    dst=event_dst,
+                    event_t=event_t,
+                    edge=event_edge
+                )
+
                 ### TR Sample
                 src=batch_sample["src"]
                 dst=batch_sample["dst"]
@@ -196,6 +220,7 @@ class ModelTrainer:
     @staticmethod
     def test(
             model:nn.Module,
+            test_loader:DataLoader,
             test_sample_loader:list,
             **kwargs
         ):
@@ -219,7 +244,16 @@ class ModelTrainer:
         ap_list=[]
         auc_list=[]
         with torch.no_grad():
-            for batch_sample in tqdm(test_sample_loader,desc=f"Test..."):
+            for batch_event,batch_sample in tqdm(zip(test_loader,test_sample_loader),desc=f"Test..."):
+                ### update in_adj of batch_eventstream
+                event_src,event_dst,event_t,event_edge=batch_event
+                model.graph.update_in_adj(
+                    src=event_src,
+                    dst=event_dst,
+                    event_t=event_t,
+                    edge=event_edge
+                )
+
                 ### TR Sample
                 src=batch_sample["src"]
                 dst=batch_sample["dst"]

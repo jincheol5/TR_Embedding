@@ -1,9 +1,6 @@
 import torch
 
 """
-undirected graph인 점을 고려하여 수정.
-
-
 << Random TR Sampling >>
 - n_pos_sample=n_sample//2
 - n_neg_sample=n_sample//2
@@ -58,11 +55,12 @@ class Sampler:
             label: [n_sample,]
             pos_mask: [n_sample,]
         """
-        nodes=torch.as_tensor(candidates,dtype=torch.long).unique()
-        nodes=nodes[(nodes>0)&(nodes<TR_label.size(0))]
+        src_nodes=torch.arange(1,TR_label.size(0),dtype=torch.long,device=TR_label.device)
+        dst_nodes=torch.as_tensor(candidates,dtype=torch.long).unique()
+        dst_nodes=dst_nodes[(dst_nodes>0)&(dst_nodes<TR_label.size(1))]
 
         event_dst=torch.as_tensor(event_dst,dtype=torch.long).unique()
-        event_dst=event_dst[torch.isin(event_dst,nodes)]
+        event_dst=event_dst[torch.isin(event_dst,dst_nodes)]
         event_dst=event_dst[torch.randperm(len(event_dst))]
 
         quota=n_sample//2
@@ -70,7 +68,7 @@ class Sampler:
 
         # 1. Batch DST Sampling
         for d in event_dst.tolist():
-            src=nodes[nodes!=d]
+            src=src_nodes[src_nodes!=d]
 
             # Positive Sampling
             if len(pos)<quota:
@@ -103,11 +101,11 @@ class Sampler:
 
         # 2. Remaining DST Sampling
         if len(pos)<quota or len(neg)<quota:
-            remaining_dst=nodes[~torch.isin(nodes,event_dst)]
+            remaining_dst=dst_nodes[~torch.isin(dst_nodes,event_dst)]
             remaining_dst=remaining_dst[torch.randperm(len(remaining_dst))]
 
             for d in remaining_dst.tolist():
-                src=nodes[nodes!=d]
+                src=src_nodes[src_nodes!=d]
 
                 # Positive Sampling
                 if len(pos)<quota:
