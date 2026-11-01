@@ -3,10 +3,6 @@ from torch.utils.data import DataLoader
 from utils import DataUtils,TrainUtils,TemporalGraphDataset
 
 def main(**kwargs):
-    ### set seed
-    seed=kwargs["seed"]
-    TrainUtils.set_seed(seed=seed)
-
     dataset_name=kwargs["dataset_name"]
     purpose=kwargs["purpose"]
     batch_size=kwargs["batch_size"]
@@ -73,12 +69,10 @@ if __name__=="__main__":
     )
     parser.add_argument("--purpose",type=str,choices=["val","test"],default="test")
     parser.add_argument("--batch_size",type=int,default=200)
-    parser.add_argument("--seed",type=int,choices=[1,2,3],default=1)
     args=parser.parse_args()
     app_config={
         "dataset_name":args.dataset_name,
         "purpose":args.purpose,
         "batch_size":args.batch_size,
-        "seed":args.seed
     }
     main(**app_config)
