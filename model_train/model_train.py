@@ -3,12 +3,13 @@ import torch.nn as nn
 import mlflow
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from model import TGAT,TGN,CAW_N,GraphMixer,DyGFormer
 from utils import TrainUtils,EarlyStopper,Metric
 
-class ModelTrainer:
+class Model_Trainer:
     @staticmethod
     def train(
-            model:nn.Module,
+            model:TGAT|TGN|CAW_N|GraphMixer|DyGFormer,
             train_loader:DataLoader,
             val_loader:DataLoader,
             val_sample_loader:list,
@@ -51,6 +52,10 @@ class ModelTrainer:
             ### Epoch마다 in_adj 초기화
             model.graph.init_in_adj()
 
+            ### Epoch마다 TGN model의 경우 memory state 초기화
+            if isinstance(model,TGN):
+                model.memory.init_memory_state()
+
             ### Epoch마다 train_sample_loader 생성
             train_sample_loader=TrainUtils.get_TR_sample_loader(
                 graph_loader=train_loader,
@@ -63,12 +68,25 @@ class ModelTrainer:
             for batch_event,batch_sample in tqdm(zip(train_loader,train_sample_loader),desc=f"Training epoch {epoch+1}..."):
                 ### update in_adj of batch_eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
+                event_src=event_src.to(device)
+                event_dst=event_dst.to(device)
+                event_t=event_t.to(device)
+                event_edge=event_edge.to(device)
                 model.graph.update_in_adj(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t,
                     edge=event_edge
                 )
+
+                ### Update model memory for Eventstream
+                if isinstance(model,TGN):
+                    model.update_model_memory(
+                        src=event_src,
+                        dst=event_dst,
+                        event_t=event_t,
+                        edge=event_edge
+                    )
 
                 ### TR Sample
                 src=batch_sample["src"]
@@ -80,6 +98,7 @@ class ModelTrainer:
                 query_t=query_t.to(device)
                 label=label.to(device)
 
+                ### Forward
                 pred_logit=model(
                     src=src,
                     dst=dst,
@@ -95,10 +114,13 @@ class ModelTrainer:
                 loss.backward()
                 optimizer.step()
 
+                if isinstance(model,TGN):
+                    model.memory.memory_detach()
+
             """
             Validate Model
             """
-            val_result=ModelTrainer.validate(
+            val_result=Model_Trainer.validate(
                 model=model,
                 val_loader=val_loader,
                 val_sample_loader=val_sample_loader,
@@ -132,7 +154,7 @@ class ModelTrainer:
 
     @staticmethod
     def validate(
-            model:nn.Module,
+            model:TGAT|TGN|CAW_N|GraphMixer|DyGFormer,
             val_loader:DataLoader,
             val_sample_loader:list,
             **kwargs
@@ -154,19 +176,31 @@ class ModelTrainer:
         Compute validate loss and acc
         """
         loss_list=[]
-        acc_list=[]
-        ap_list=[]
-        auc_list=[]
+        pred_logit_list=[]
+        label_list=[]
         with torch.no_grad():
             for batch_event,batch_sample in tqdm(zip(val_loader,val_sample_loader),desc=f"Validate..."):
                 ### update in_adj of batch_eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
+                event_src=event_src.to(device)
+                event_dst=event_dst.to(device)
+                event_t=event_t.to(device)
+                event_edge=event_edge.to(device)
                 model.graph.update_in_adj(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t,
                     edge=event_edge
                 )
+
+                ### Update model memory for Eventstream
+                if isinstance(model,TGN):
+                    model.update_model_memory(
+                        src=event_src,
+                        dst=event_dst,
+                        event_t=event_t,
+                        edge=event_edge
+                    )
 
                 ### TR Sample
                 src=batch_sample["src"]
@@ -178,6 +212,7 @@ class ModelTrainer:
                 query_t=query_t.to(device)
                 label=label.to(device)
 
+                ### Forward
                 pred_logit=model(
                     src=src,
                     dst=dst,
@@ -189,37 +224,22 @@ class ModelTrainer:
                 batch_loss=criterion(pred_logit,label)
                 loss_list.append(batch_loss)
 
-                ### ACC
-                batch_acc=Metric.compute_ACC(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                acc_list.append(batch_acc)
+                # Collect all samples on CPU for dataset-level metrics.
+                pred_logit_list.append(pred_logit.detach().cpu())
+                label_list.append(label.detach().cpu())
 
-                ### AP
-                batch_ap=Metric.compute_AP(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                ap_list.append(batch_ap)
-
-                ### AUC
-                batch_auc=Metric.compute_AUC(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                auc_list.append(batch_auc)
-
+        pred_logit=torch.cat(pred_logit_list)
+        label=torch.cat(label_list)
         return {
             "loss":torch.stack(loss_list).mean().item(),
-            "acc":sum(acc_list)/len(acc_list),
-            "ap":sum(ap_list)/len(ap_list),
-            "auc":sum(auc_list)/len(auc_list),
+            "acc":Metric.compute_ACC(pred_logit=pred_logit,label=label),
+            "ap":Metric.compute_AP(pred_logit=pred_logit,label=label),
+            "auc":Metric.compute_AUC(pred_logit=pred_logit,label=label),
         }
 
     @staticmethod
     def test(
-            model:nn.Module,
+            model:TGAT|TGN|CAW_N|GraphMixer|DyGFormer,
             test_loader:DataLoader,
             test_sample_loader:list,
             **kwargs
@@ -240,19 +260,31 @@ class ModelTrainer:
         """
         Compute test acc
         """
-        acc_list=[]
-        ap_list=[]
-        auc_list=[]
+        pred_logit_list=[]
+        label_list=[]
         with torch.no_grad():
             for batch_event,batch_sample in tqdm(zip(test_loader,test_sample_loader),desc=f"Test..."):
                 ### update in_adj of batch_eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
+                event_src=event_src.to(device)
+                event_dst=event_dst.to(device)
+                event_t=event_t.to(device)
+                event_edge=event_edge.to(device)
                 model.graph.update_in_adj(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t,
                     edge=event_edge
                 )
+
+                ### Update model memory for Eventstream
+                if isinstance(model,TGN):
+                    model.update_model_memory(
+                        src=event_src,
+                        dst=event_dst,
+                        event_t=event_t,
+                        edge=event_edge
+                    )
 
                 ### TR Sample
                 src=batch_sample["src"]
@@ -264,35 +296,21 @@ class ModelTrainer:
                 query_t=query_t.to(device)
                 label=label.to(device)
 
+                ### Forward
                 pred_logit=model(
                     src=src,
                     dst=dst,
                     event_t=query_t
                 ) # [B,]
 
-                ### ACC
-                batch_acc=Metric.compute_ACC(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                acc_list.append(batch_acc)
+                # Collect all samples on CPU for dataset-level metrics.
+                pred_logit_list.append(pred_logit.detach().cpu())
+                label_list.append(label.detach().cpu())
 
-                ### AP
-                batch_ap=Metric.compute_AP(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                ap_list.append(batch_ap)
-
-                ### AUC
-                batch_auc=Metric.compute_AUC(
-                    pred_logit=pred_logit,
-                    label=label
-                )
-                auc_list.append(batch_auc)
-
+        pred_logit=torch.cat(pred_logit_list)
+        label=torch.cat(label_list)
         return {
-            "acc":sum(acc_list)/len(acc_list),
-            "ap":sum(ap_list)/len(ap_list),
-            "auc":sum(auc_list)/len(auc_list),
+            "acc":Metric.compute_ACC(pred_logit=pred_logit,label=label),
+            "ap":Metric.compute_AP(pred_logit=pred_logit,label=label),
+            "auc":Metric.compute_AUC(pred_logit=pred_logit,label=label),
         }

@@ -154,15 +154,15 @@ class GNN_Graph:
     def get_temporal_neighbor(self,
             tar:torch.Tensor,
             tar_t:torch.Tensor,
-            n_neighbor:int
+            n_neighbor:int,
+            include_current:bool=False
         ):
         """
-        현재까지 update_in_adj로 업데이트된 eventstream으로 temporal_neighbor 계산.
-
         Input:
             tar: [n_tar,]
             tar_t: [n_tar,]
             n_neighbor: int
+
         Return:
             neighbor: [n_tar,n_neighbor]
             neighbor_mask: [n_tar,n_neighbor]
@@ -181,18 +181,25 @@ class GNN_Graph:
         tar=tar.detach().cpu().tolist()
         tar_t=tar_t.detach().cpu().tolist()
         for i,(tar_id,cut_time) in enumerate(zip(tar,tar_t)):
-            if tar_id==0 or n_neighbor==0:
-                continue
             neighbors=self.in_adj[tar_id]
             edges=self.in_adj_edge[tar_id]
             times=self.in_adj_t[tar_id]
             if not neighbors:
                 continue
 
+            # t < cut_time 인 첫 위치
+            # Root queries may include equal timestamps; recursive queries stay strict.
+            cut_idx=np.searchsorted(
+                times,
+                cut_time,
+                side="right" if include_current else "left"
+            )
+
             # 최근 n_neighbor개 선택
-            selected_neighbors=neighbors[-n_neighbor:]
-            selected_edges=edges[-n_neighbor:]
-            selected_times=times[-n_neighbor:]
+            start_idx=max(0,cut_idx-n_neighbor)
+            selected_neighbors=neighbors[start_idx:cut_idx]
+            selected_edges=edges[start_idx:cut_idx]
+            selected_times=times[start_idx:cut_idx]
 
             n_selected=len(selected_neighbors)
             if n_selected==0:

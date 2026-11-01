@@ -40,7 +40,8 @@ class GraphEmbeddingModule(nn.Module):
             tar:torch.Tensor,
             tar_t:torch.Tensor,
             mem_vec:torch.Tensor|None=None,
-            n_layer:int=1
+            n_layer:int=1,
+            include_current:bool=False
         ):
         """
         Input:
@@ -69,13 +70,15 @@ class GraphEmbeddingModule(nn.Module):
                 tar=tar,
                 tar_t=tar_t,
                 mem_vec=mem_vec,
-                n_layer=n_layer-1
+                n_layer=n_layer-1,
+                include_current=include_current
             ) # [n_tar,tar_dim] if n_layer=1 else # [n_tar,output_dim]
 
             temporal_neighbor=self.graph.get_temporal_neighbor(
                 tar=tar,
                 tar_t=tar_t,
-                n_neighbor=self.n_neighbor
+                n_neighbor=self.n_neighbor,
+                include_current=include_current
             )
             neighbor=temporal_neighbor["neighbor"]
             neighbor_mask=temporal_neighbor["neighbor_mask"]
@@ -99,7 +102,8 @@ class GraphEmbeddingModule(nn.Module):
                 tar=neighbor,
                 tar_t=neighbor_t,
                 mem_vec=mem_vec,
-                n_layer=n_layer-1
+                n_layer=n_layer-1,
+                include_current=False
             ) # [n_tar x n_neighbor,tar_dim] if n_layer=1 else [n_tar x n_neighbor,output_dim] 
 
             # reshape

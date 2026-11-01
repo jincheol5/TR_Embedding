@@ -29,7 +29,8 @@ class DyGFormer_Graph(GNN_Graph):
     def get_history_seq(self,
             node:torch.Tensor,
             event_t:torch.Tensor,
-            max_history_len:int
+            max_history_len:int,
+            include_current:bool=False
         )->dict[str,list[np.ndarray]]:
         """
         batch 내 각 노드의 1-hop history sequence를 max_history_len 만큼 구해 list로 반환.
@@ -63,7 +64,7 @@ class DyGFormer_Graph(GNN_Graph):
             times=self.in_adj_t[node_id]
 
             # cut_time 미만의 interaction만 사용
-            cut_idx=int(np.searchsorted(times,cut_time,side="left"))
+            cut_idx=int(np.searchsorted(times,cut_time,side="right" if include_current else "left"))
 
             # 가장 최근 max_history_len개 선택
             start_idx=max(0,cut_idx-max_history_len)

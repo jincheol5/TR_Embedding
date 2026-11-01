@@ -63,7 +63,8 @@ class TGAT(nn.Module):
         embedded_tar_vec=self.encoder.compute_embedding(
             tar=tar,
             tar_t=tar_t,
-            n_layer=self.n_layer
+            n_layer=self.n_layer,
+            include_current=True
         )
         src_vec=embedded_tar_vec[:batch_size]
         dst_vec=embedded_tar_vec[batch_size:]

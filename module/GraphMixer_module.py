@@ -11,7 +11,8 @@ class GraphMixer_Module:
 
     def get_temporal_link_matrix(self,
             tar:torch.Tensor,
-            tar_t:torch.Tensor
+            tar_t:torch.Tensor,
+            include_current:bool=False
         ):
         """
         각 노드 tar가 참여한 tar_t 미만의 최근 n_last_event개 temporal link의
@@ -27,7 +28,8 @@ class GraphMixer_Module:
         temporal_neighbor=self.graph.get_temporal_neighbor(
             tar=tar,
             tar_t=tar_t,
-            n_neighbor=self.n_last_event
+            n_neighbor=self.n_last_event,
+            include_current=include_current
         )
         neighbor_edge=temporal_neighbor["neighbor_edge"].to(device)
         temporal_link_matrix=self.graph.get_edge_ft(edge=neighbor_edge)
@@ -35,7 +37,8 @@ class GraphMixer_Module:
 
     def get_encoded_node_vec(self,
             tar:torch.Tensor,
-            tar_t:torch.Tensor
+            tar_t:torch.Tensor,
+            include_current:bool=False
         ):
         """
         tar_t 미만의 최근 n_last_event개 이벤트에서 중복 이웃과 self-loop를
@@ -51,7 +54,8 @@ class GraphMixer_Module:
         temporal_neighbor=self.graph.get_temporal_neighbor(
             tar=tar,
             tar_t=tar_t,
-            n_neighbor=self.n_last_event
+            n_neighbor=self.n_last_event,
+            include_current=include_current
         )
         neighbor=temporal_neighbor["neighbor"]
         neighbor_mask=temporal_neighbor["neighbor_mask"]

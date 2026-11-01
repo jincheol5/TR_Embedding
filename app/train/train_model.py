@@ -1,7 +1,7 @@
 import argparse
 from torch.utils.data import DataLoader
-from model import TGAT
-from model_train import ModelTrainer
+from model import TGAT,TGN,CAW_N,GraphMixer,DyGFormer,TPNet,ReaCH_TGN
+from model_train import Model_Trainer,TPNet_Trainer,ReaCH_TGN_Trainer
 from utils import DataUtils,GraphUtils,TrainUtils,TemporalGraphDataset,ModelUtils
 
 def main(**kwargs):
@@ -76,6 +76,116 @@ def main(**kwargs):
                 n_neighbor=n_neighbor,
                 n_head=n_head
             )
+        case "TGN":
+            # TGN 하이퍼 파라미터
+            msg_dim=32
+            mem_dim=32
+            msg_fn=f"mlp"
+            aggr_fn=f"mean"
+            model=TGN(
+                node_dim=node_dim,
+                edge_dim=edge_dim,
+                time_dim=time_dim,
+                latent_dim=latent_dim,
+                msg_dim=msg_dim,
+                mem_dim=mem_dim,
+                embed_dim=embed_dim,
+                n_layer=n_layer,
+                n_neighbor=n_neighbor,
+                n_head=n_head,
+                msg_fn=msg_fn,
+                aggr_fn=aggr_fn
+            )
+        case "CAW-N":
+            # CAW-N 하이퍼 파라미터
+            n_walk=10
+            walk_len=3
+            alpha=0.0001
+            graph_config={
+                "n_walk":n_walk,
+                "walk_len":walk_len,
+                "alpha":alpha
+            }
+            model=CAW_N(
+                node_dim=node_dim,
+                edge_dim=edge_dim,
+                latent_dim=latent_dim,
+                time_dim=time_dim,
+                embed_dim=embed_dim,
+                n_head=n_head,
+                n_walk=n_walk,
+                walk_len=walk_len,
+                alpha=alpha
+            )
+        case "GraphMixer":
+            # GraphMixer 하이퍼 파라미터
+            n_last_event=10
+            model=GraphMixer(
+                node_dim=node_dim,
+                edge_dim=edge_dim,
+                time_dim=time_dim,
+                latent_dim=latent_dim,
+                embed_dim=embed_dim,
+                n_last_event=n_last_event
+            )
+        case "DyGFormer":
+            # DyGFormer 하이퍼 파라미터
+            co_dim=32
+            common_dim=32
+            max_history_len=10
+            patch_size=5
+            model=DyGFormer(
+                node_dim=node_dim,
+                edge_dim=edge_dim,
+                latent_dim=latent_dim,
+                time_dim=time_dim,
+                co_dim=co_dim,
+                common_dim=common_dim,
+                embed_dim=embed_dim,
+                n_layer=n_layer,
+                n_head=n_head,
+                max_history_len=max_history_len,
+                patch_size=patch_size
+            )
+        case "TPNet":
+            # TPNet 하이퍼 파라미터
+            random_ft_dim=128
+            walk_len=3
+            time_decay_coef=0.0001
+            n_last_event=10
+            mlp_mixer_n_layer=2
+            model=TPNet(
+                node_dim=node_dim,
+                edge_dim=edge_dim,
+                time_dim=time_dim,
+                latent_dim=latent_dim,
+                random_ft_dim=random_ft_dim,
+                embed_dim=embed_dim,
+                walk_len=walk_len,
+                time_decay_coef=time_decay_coef,
+                n_last_event=n_last_event,
+                mlp_mixer_n_layer=mlp_mixer_n_layer
+            )
+        case "ReaCH-TGN":
+            # ReaCH-TGN 하이퍼 파라미터
+            msg_dim=32
+            mem_dim=32
+            msg_fn=f"mlp"
+            aggr_fn=f"mean"
+            model=ReaCH_TGN(
+                node_dim=node_dim,
+                edge_dim=edge_dim,
+                time_dim=time_dim,
+                latent_dim=latent_dim,
+                msg_dim=msg_dim,
+                mem_dim=mem_dim,
+                embed_dim=embed_dim,
+                n_layer=n_layer,
+                n_neighbor=n_neighbor,
+                n_head=n_head,
+                msg_fn=msg_fn,
+                aggr_fn=aggr_fn
+            )
 
     ### set graph
     graph=GraphUtils.generate_model_graph(
@@ -112,13 +222,31 @@ def main(**kwargs):
         "n_pair":n_pair
     }
     match model_name:
-        case "TGAT":
-            model=ModelTrainer.train(
+        case "TGAT"|"TGN"|"CAW-N"|"GraphMixer"|"DyGFormer":
+            model=Model_Trainer.train(
                 model=model,
                 train_loader=train_loader,
                 val_loader=val_loader,
                 val_sample_loader=val_sample_loader,
                 train_TR_label=train_TR_result["label"],
+                **model_config
+            )
+        case "TPNet":
+            model=TPNet_Trainer.train(
+                model=model,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                val_sample_loader=val_sample_loader,
+                train_TR_label=train_TR_result["label"],
+                **model_config
+            )
+        case "ReaCH-TGN":
+            model=ReaCH_TGN_Trainer.train(
+                model=model,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                val_sample_loader=val_sample_loader,
+                train_TR_result=train_TR_result,
                 **model_config
             )
 

@@ -103,7 +103,8 @@ class GraphUtils:
                 "CAW-N",
                 "GraphMixer",
                 "DyGFormer",
-                "TPNet"
+                "TPNet",
+                "ReaCH-TGN"
             ],
             graph_df:pd.DataFrame,
             node_ft:np.ndarray=None,
@@ -114,7 +115,7 @@ class GraphUtils:
             **graph_config
         ):
         match model_name:
-            case "TGAT"|"TGN"|"GraphMixer"|"TPNet":
+            case "TGAT"|"TGN"|"GraphMixer"|"TPNet"|"ReaCH-TGN":
                 graph=GNN_Graph(
                     graph_df=graph_df,
                     node_ft=node_ft,

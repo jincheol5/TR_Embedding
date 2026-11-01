@@ -22,7 +22,8 @@ class TPNet_Matrix(nn.Module):
         self.register_buffer(
             "last_t",
             torch.zeros(
-                (self.n_node+1,)
+                (self.n_node+1,),
+                dtype=torch.int64
             )
         )
         self.init_random_ft()
@@ -37,6 +38,7 @@ class TPNet_Matrix(nn.Module):
             random_ft[1:]: 1~walk_len-hop representation, zero vector.
             random_ft[:,0,:]: 모든 hop의 padding node (node_id=0), zero vector.
         """
+        # Resample the 0-hop projection and reset accumulated representations.
         self.random_ft.zero_()
         self.random_ft[0,1:].normal_(
             mean=0.0,
@@ -55,6 +57,8 @@ class TPNet_Matrix(nn.Module):
         ):
         """
         Node Representation Maintaining (NRM)
+
+        Directed Temporal Graph에 맞게 src -> dst 전파만 적용.
 
         하이퍼 파라미터:
         - λ: time_decay_coef
@@ -87,13 +91,7 @@ class TPNet_Matrix(nn.Module):
             -self.time_decay_coef*(next_t-event_t)
         ).unsqueeze(-1)
         for hop in range(self.walk_len,0,-1):
-            src_messages=self.random_ft[hop-1][dst]*time_decay_weight
             dst_messages=self.random_ft[hop-1][src]*time_decay_weight
-            self.random_ft[hop].scatter_add_(
-                dim=0,
-                index=src[:,None].expand(-1,self.random_ft_dim),
-                src=src_messages
-            )
             self.random_ft[hop].scatter_add_(
                 dim=0,
                 index=dst[:,None].expand(-1,self.random_ft_dim),

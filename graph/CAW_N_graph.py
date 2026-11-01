@@ -27,7 +27,8 @@ class CAW_N_Graph(GNN_Graph):
 
     def _get_walks(self,
             root:int,
-            root_t:int
+            root_t:int,
+            include_current:bool=False
         ):
         """
         Temporal Walk for Causality Extraction.
@@ -51,7 +52,8 @@ class CAW_N_Graph(GNN_Graph):
             walk[0]=(node,cut_time,0)
             for step in range(1,self.walk_len+1):
                 history_times=self.in_adj_t[node]
-                cut_idx=int(np.searchsorted(history_times,cut_time,side="left"))
+                # Only the root step may include the query timestamp.
+                cut_idx=int(np.searchsorted(history_times,cut_time,side="right" if include_current and step==1 else "left"))
                 if cut_idx==0:
                     break
 
@@ -60,7 +62,7 @@ class CAW_N_Graph(GNN_Graph):
                     selected=int(np.random.randint(cut_idx))
                 else: # weighted
                     with np.errstate(over="ignore",under="ignore"): # np의 오버플로와 언더플로 경고 숨김
-                        log_weights=self.alpha*(history_times[:cut_idx]-cut_time)
+                        log_weights=self.alpha*(np.asarray(history_times[:cut_idx],dtype=np.int64)-cut_time)
                         log_weights-=log_weights.max()
                         weights=np.exp(log_weights)
                     probabilities=weights/weights.sum()
@@ -73,7 +75,8 @@ class CAW_N_Graph(GNN_Graph):
 
     def causality_extraction(self,
             node:torch.Tensor,
-            event_t:torch.Tensor
+            event_t:torch.Tensor,
+            include_current:bool=False
         ):
         """
         Input:
@@ -90,7 +93,7 @@ class CAW_N_Graph(GNN_Graph):
         roots=node.detach().cpu().tolist()
         root_times=event_t.detach().cpu().tolist()
         for root,root_t in zip(roots,root_times):
-            walks=self._get_walks(root=root,root_t=root_t)
+            walks=self._get_walks(root=root,root_t=root_t,include_current=include_current)
             batch_node_walks.append(walks)
         return batch_node_walks
 
@@ -116,7 +119,8 @@ class CAW_N_Graph(GNN_Graph):
     def set_based_anonymization(self,
             src:torch.Tensor,
             dst:torch.Tensor,
-            event_t:torch.Tensor
+            event_t:torch.Tensor,
+            include_current:bool=False
         ):
         """
         Input:
@@ -133,8 +137,8 @@ class CAW_N_Graph(GNN_Graph):
         """
         batch_src_caws=[]
         batch_dst_caws=[]
-        batch_src_walks=self.causality_extraction(node=src,event_t=event_t)
-        batch_dst_walks=self.causality_extraction(node=dst,event_t=event_t)
+        batch_src_walks=self.causality_extraction(node=src,event_t=event_t,include_current=include_current)
+        batch_dst_walks=self.causality_extraction(node=dst,event_t=event_t,include_current=include_current)
         for src_walks,dst_walks in zip(batch_src_walks,batch_dst_walks):
             node_ids={
                 node_id 

@@ -84,7 +84,8 @@ class TPNet(nn.Module):
         history=self.graph.get_temporal_neighbor(
             tar=nodes,
             tar_t=torch.cat((event_t,event_t),dim=0),
-            n_neighbor=self.n_last_event
+            n_neighbor=self.n_last_event,
+            include_current=True
         )
         neighbor=history["neighbor"]
         edge=history["neighbor_edge"]

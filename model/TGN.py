@@ -123,7 +123,8 @@ class TGN(nn.Module):
             tar=tar,
             tar_t=tar_t,
             mem_vec=mem_vec,
-            n_layer=self.n_layer
+            n_layer=self.n_layer,
+            include_current=True
         )
         src_vec=embedded_tar_vec[:batch_size]
         dst_vec=embedded_tar_vec[batch_size:]

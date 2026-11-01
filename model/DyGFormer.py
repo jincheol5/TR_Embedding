@@ -121,7 +121,8 @@ class DyGFormer(nn.Module):
         src_result=self.graph.get_history_seq(
             node=src,
             event_t=event_t,
-            max_history_len=self.max_history_len
+            max_history_len=self.max_history_len,
+            include_current=True
         )
         src_node_seq_list=src_result["node"]
         src_edge_seq_list=src_result["edge"]
@@ -130,7 +131,8 @@ class DyGFormer(nn.Module):
         dst_result=self.graph.get_history_seq(
             node=dst,
             event_t=event_t,
-            max_history_len=self.max_history_len
+            max_history_len=self.max_history_len,
+            include_current=True
         )
         dst_node_seq_list=dst_result["node"]
         dst_edge_seq_list=dst_result["edge"]

@@ -31,7 +31,7 @@ class CAW_N(nn.Module):
 
         # anonymizated_vec encoder
         self.anonymizated_vec_encoder=MLP(
-            input_dim=walk_len+1,
+            input_dim=2*(walk_len+1),
             latent_dim=latent_dim,
             output_dim=latent_dim
         )
@@ -53,6 +53,8 @@ class CAW_N(nn.Module):
             activation="relu",
             batch_first=True
         )
+
+        self.pair_projection=nn.Linear(2*embed_dim,embed_dim)
 
         # decoder
         # CAW_N decoder for link prediction
@@ -90,7 +92,8 @@ class CAW_N(nn.Module):
         result=self.graph.set_based_anonymization(
             src=src,
             dst=dst,
-            event_t=event_t
+            event_t=event_t,
+            include_current=True
         )
         batch_src_caws=result["batch_src_caws"]
         batch_dst_caws=result["batch_dst_caws"]
@@ -130,11 +133,11 @@ class CAW_N(nn.Module):
                 [B,n_walk,walk_len+1,1] -> [B,n_walk,walk_len+1,time_dim]
         """
         ### src
-        batch_src_caws_vec=self.anonymizated_vec_encoder(batch_src_caws_vec).sum(dim=-2)
+        batch_src_caws_vec=self.anonymizated_vec_encoder(batch_src_caws_vec.flatten(start_dim=-2))
         batch_src_caws_ts_vec=self.time_encoder(batch_src_caws_ts)
 
         ### dst
-        batch_dst_caws_vec=self.anonymizated_vec_encoder(batch_dst_caws_vec).sum(dim=-2)
+        batch_dst_caws_vec=self.anonymizated_vec_encoder(batch_dst_caws_vec.flatten(start_dim=-2))
         batch_dst_caws_ts_vec=self.time_encoder(batch_dst_caws_ts)
 
         # 논문 식 (8): X_i = node feature || incoming edge feature.
@@ -204,7 +207,9 @@ class CAW_N(nn.Module):
         """
         batch_walk_vec=torch.cat([batch_src_walk_vec,batch_dst_walk_vec],dim=1) # [B,2*n_walk,embed_dim]
         batch_walk_vec=self.walk_attn(batch_walk_vec) # [B,2*n_walk,embed_dim]
-        pair_vec=batch_walk_vec.mean(dim=1) # [B,embed_dim]
+        src_walk_vec=batch_walk_vec[:,:self.n_walk].mean(dim=1)
+        dst_walk_vec=batch_walk_vec[:,self.n_walk:].mean(dim=1)
+        pair_vec=self.pair_projection(torch.cat([src_walk_vec,dst_walk_vec],dim=-1)) # [B,embed_dim]
         return pair_vec
 
     def forward(self,

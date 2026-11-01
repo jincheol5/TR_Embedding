@@ -63,11 +63,12 @@ class GraphMixer(nn.Module):
         history=self.graph.get_temporal_neighbor(
             tar=tar,
             tar_t=tar_t,
-            n_neighbor=self.n_last_event
+            n_neighbor=self.n_last_event,
+            include_current=True
         )
 
         # 시간 차이는 정수 상태에서 계산된 neighbor_ts를 사용한다.
-        edge_vec=self.module.get_temporal_link_matrix(tar=tar,tar_t=tar_t)
+        edge_vec=self.module.get_temporal_link_matrix(tar=tar,tar_t=tar_t,include_current=True)
         time_vec=self.time_encoder(history["neighbor_ts"].unsqueeze(-1))
         link_vec=self.link_encoder(torch.cat((edge_vec,time_vec),dim=-1))
 
@@ -79,7 +80,7 @@ class GraphMixer(nn.Module):
 
         link_vec=self.mlp_mixer(link_vec)
         link_vec=self.link_output(self.link_norm(link_vec).mean(dim=1))
-        node_vec=self.module.get_encoded_node_vec(tar=tar,tar_t=tar_t)
+        node_vec=self.module.get_encoded_node_vec(tar=tar,tar_t=tar_t,include_current=True)
         encoded_tar_vec=torch.cat((link_vec,node_vec),dim=-1)
         return {
             "src_vec":encoded_tar_vec[:batch_size],

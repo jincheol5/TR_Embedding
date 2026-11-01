@@ -18,14 +18,17 @@ class ReaCH_TGN_Utils:
         Return:
             augmented_event_t: [B,]
         """
+        event_t=event_t.to(dtype=torch.int64)
+
         ### Gaussian noise
-        gaussian_noise=(torch.randn_like(event_t)*gaussian_noise_std)
+        gaussian_noise=(torch.randn_like(event_t,dtype=torch.float32)*gaussian_noise_std)
 
         ### Small uniform jitter
-        uniform_noise=(torch.rand_like(event_t)*2.0-1.0)*uniform_jitter
+        uniform_noise=(torch.rand_like(event_t,dtype=torch.float32)*2.0-1.0)*(uniform_jitter*86400.0)
 
         ### Timestamp jitter
-        augmented_event_t=event_t+gaussian_noise+uniform_noise
+        noise_seconds=(gaussian_noise+uniform_noise).round().to(dtype=torch.int64)
+        augmented_event_t=event_t+noise_seconds
         return augmented_event_t
 
     @staticmethod
@@ -120,7 +123,7 @@ class ReaCH_TGN_Utils:
     def compute_time_gap_penalty(
             pair_first_t:torch.Tensor,
             query_time:float,
-            decay_coefficient:float=0.01
+            decay_coefficient:float=0.01/86400.0
         )->torch.Tensor:
         """
         Time-Gap Penalty
