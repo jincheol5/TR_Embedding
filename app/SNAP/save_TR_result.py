@@ -1,6 +1,5 @@
 import argparse
 from torch.utils.data import DataLoader
-from graph import TemporalGraph
 from utils import DataUtils,GraphUtils,TrainUtils,TemporalGraphDataset
 
 def main(**kwargs):
@@ -10,8 +9,7 @@ def main(**kwargs):
     ### load data
     graph_data=DataUtils.preprocess_SNAP_dataset(dataset_name=dataset_name)
     graph_df=graph_data["graph_df"]
-    graph=TemporalGraph(graph_df=graph_df)
-    n_node=graph.n_node
+    n_node=int(max(graph_df["u"].max(),graph_df["i"].max()))
 
     ### split train (70%), val (15%), test (15%)
     train_df,val_df,test_df=TrainUtils.split_graph_df(graph_df=graph_df)
