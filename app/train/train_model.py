@@ -203,7 +203,7 @@ def main(**kwargs):
     """
     ### 학습 관련 파라미터
     optimizer=f"adam"
-    epoch=100
+    epoch=5
     early_stop=True
     patience=10
     batch_size=200

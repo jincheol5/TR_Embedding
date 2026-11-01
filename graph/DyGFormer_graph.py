@@ -72,7 +72,7 @@ class DyGFormer_Graph(GNN_Graph):
             # 과거 -> 최근 순으로 저장
             selected_neighbors=neighbors[start_idx:cut_idx]
             selected_edges=edges[start_idx:cut_idx]
-            selected_times=times[start_idx:cut_idx]
+            selected_times=np.asarray(times[start_idx:cut_idx],dtype=np.int64)
 
             # 자기 자신을 sequence 맨 앞에 추가
             node_seq=np.concatenate([
