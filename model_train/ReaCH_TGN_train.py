@@ -295,7 +295,11 @@ class ReaCH_TGN_Trainer:
         pred_logit_list=[]
         label_list=[]
         with torch.no_grad():
-            for batch_event,batch_sample in tqdm(zip(val_loader,val_sample_loader),desc=f"Validate..."):
+            for batch_event,batch_sample in tqdm(
+                    zip(val_loader,val_sample_loader),
+                    total=len(val_loader),
+                    desc=f"Validate..."
+                ):
                 ### update in_adj of batch_eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
                 event_src=event_src.to(device)
@@ -378,7 +382,11 @@ class ReaCH_TGN_Trainer:
         pred_logit_list=[]
         label_list=[]
         with torch.no_grad():
-            for batch_event,batch_sample in tqdm(zip(test_loader,test_sample_loader),desc=f"Test..."):
+            for batch_event,batch_sample in tqdm(
+                    zip(test_loader,test_sample_loader),
+                    total=len(test_loader),
+                    desc=f"Test..."
+                ):
                 ### update in_adj of batch_eventstream
                 event_src,event_dst,event_t,event_edge=batch_event
                 event_src=event_src.to(device)
