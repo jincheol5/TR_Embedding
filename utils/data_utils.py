@@ -144,9 +144,10 @@ class DataUtils:
                 "soc-sign-bitcoinotc"
             ],
             purpose:Literal["val","test"],
+            seed:int,
             batch_size:int
         ):
-        file_name=f"{dataset_name}_{purpose}_B{batch_size}.pt"
+        file_name=f"{dataset_name}_{purpose}_S{seed}_B{batch_size}.pt"
         file_path=os.path.join(BASE_PATH,"TR_Embedding","sample_loader",dataset_name,file_name)
         os.makedirs(os.path.dirname(file_path),exist_ok=True)
         torch.save(sample_loader,file_path)
@@ -160,9 +161,10 @@ class DataUtils:
                 "soc-sign-bitcoinotc"
             ],
             purpose:Literal["val","test"],
+            seed:int,
             batch_size:int
         ):
-        file_name=f"{dataset_name}_{purpose}_B{batch_size}.pt"
+        file_name=f"{dataset_name}_{purpose}_S{seed}_B{batch_size}.pt"
         file_path=os.path.join(BASE_PATH,"TR_Embedding","sample_loader",dataset_name,file_name)
         sample_loader=torch.load(file_path)
         return sample_loader

@@ -11,8 +11,8 @@ class GNN_Graph:
             graph_df:pd.DataFrame,
             node_ft:np.ndarray|None=None,
             edge_ft:np.ndarray|None=None,
-            node_dim:int=32,
-            edge_dim:int=32,
+            node_dim:int=172,
+            edge_dim:int=172,
             one_hot:bool=False
         ):
         # set graph info
@@ -34,7 +34,7 @@ class GNN_Graph:
 
     def set_node_ft(self,
             node_ft:np.ndarray=None,
-            node_dim:int=32,
+            node_dim:int=172,
             one_hot:bool=False
         ):
         """
@@ -65,7 +65,7 @@ class GNN_Graph:
 
     def set_edge_ft(self,
             edge_ft:np.ndarray=None,
-            edge_dim:int=32
+            edge_dim:int=172
         ):
         """
         Input:

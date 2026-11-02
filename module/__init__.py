@@ -6,3 +6,4 @@ from .TGN_module import *
 from .GraphMixer_module import *
 from .DyGFormer_module import *
 from .TPNet_module import *
+from .TRNet_module import *

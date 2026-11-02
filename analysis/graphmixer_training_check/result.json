@@ -1,0 +1,28 @@
+{
+  "train_forward_batches": 210,
+  "validation_forward_batches": 45,
+  "optimizer_steps": 210,
+  "device": "cpu",
+  "epochs": 1,
+  "one_hot": 1,
+  "seed": 1,
+  "lr": 0.0001,
+  "torch": "2.11.0",
+  "dimensions": {
+    "model_node": 1899,
+    "graph_node": 1899,
+    "model_edge": 172,
+    "graph_edge": 172,
+    "time": 100,
+    "embedding": 172,
+    "history": 50
+  },
+  "validation_metrics": {
+    "loss": 0.4347419738769531,
+    "acc": 0.812333345413208,
+    "ap": 0.8838411859677793,
+    "auc": 0.8813357777777777
+  },
+  "seconds": 41.0,
+  "status": "PASS"
+}

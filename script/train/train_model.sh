@@ -1,16 +1,22 @@
 #!/bin/bash
-set -e
 
-python -m app.train.train_model --model_name TGAT --seed 1 --lr 0.0001 --dataset_name CollegeMsg
+DATASETS=(CollegeMsg soc-sign-bitcoinalpha soc-sign-bitcoinotc)
+SEEDS=(1 2 3)
+LRS=(0.0001 0.0005)
+MODELS=(TGAT TGN CAW-N GraphMixer DyGFormer TPNet ReaCH-TGN)
 
-python -m app.train.train_model --model_name TGN --seed 1 --lr 0.0001 --dataset_name CollegeMsg
+for dataset in "${DATASETS[@]}"; do
+    for seed in "${SEEDS[@]}"; do
+        for lr in "${LRS[@]}"; do
+            for model in "${MODELS[@]}"; do
+                echo "Training: dataset=$dataset, seed=$seed, lr=$lr, model=$model"
 
-python -m app.train.train_model --model_name CAW-N --seed 1 --lr 0.0001 --dataset_name CollegeMsg
-
-python -m app.train.train_model --model_name GraphMixer --seed 1 --lr 0.0001 --one_hot 1 --dataset_name CollegeMsg
-
-python -m app.train.train_model --model_name DyGFormer --seed 1 --lr 0.0001 --dataset_name CollegeMsg
-
-python -m app.train.train_model --model_name TPNet --seed 1 --lr 0.0001 --dataset_name CollegeMsg
-
-python -m app.train.train_model --model_name ReaCH-TGN --seed 1 --lr 0.0001 --dataset_name CollegeMsg
+                if [ "$model" == "GraphMixer" ]; then
+                    python -m app.train.train_model --model_name "$model" --seed "$seed" --lr "$lr" --one_hot 1 --dataset_name "$dataset" --save_model 1
+                else
+                    python -m app.train.train_model --model_name "$model" --seed "$seed" --lr "$lr" --dataset_name "$dataset" --save_model 1
+                fi
+            done
+        done
+    done
+done

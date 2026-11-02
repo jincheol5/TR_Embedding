@@ -15,8 +15,8 @@ class DyGFormer_Graph(GNN_Graph):
             graph_df:pd.DataFrame,
             node_ft:np.ndarray=None,
             edge_ft:np.ndarray=None,
-            node_dim:int=32,
-            edge_dim:int=32
+            node_dim:int=172,
+            edge_dim:int=172
         ):
         super().__init__(
             graph_df=graph_df,

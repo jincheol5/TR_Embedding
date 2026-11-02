@@ -8,11 +8,11 @@ class CAW_N_Graph(GNN_Graph):
             graph_df:pd.DataFrame,
             node_ft:np.ndarray=None,
             edge_ft:np.ndarray=None,
-            node_dim:int=32,
-            edge_dim:int=32,
-            n_walk:int=10,
-            walk_len:int=5,
-            alpha:float=0.0
+            node_dim:int=172,
+            edge_dim:int=172,
+            n_walk:int=64,
+            walk_len:int=2,
+            alpha:float=0.000001
         ):
         super().__init__(
             graph_df=graph_df,

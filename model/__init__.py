@@ -5,3 +5,4 @@ from .GraphMixer import *
 from .DyGFormer import *
 from .TPNet import *
 from .ReaCH_TGN import *
+from .TRNet import *
