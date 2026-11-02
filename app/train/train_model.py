@@ -42,6 +42,7 @@ CAW-N
 
 GraphMixer
 - n_last_event: 50
+- node_ft는 one-hot vec로 처리한다.
 
 DyGFormer
 - max_history_len: 64
@@ -363,9 +364,6 @@ if __name__=="__main__":
         ],
         default=f"TGAT"
     )
-    parser.add_argument("--seed",type=int,choices=[1,2,3],default=1)
-    parser.add_argument("--lr",type=float,choices=[0.0005,0.0001],default=0.0005)
-    parser.add_argument("--one_hot",type=int,default=0)
     parser.add_argument("--dataset_name",
         type=str,
         choices=[
@@ -375,14 +373,17 @@ if __name__=="__main__":
         ],
         default="CollegeMsg"
     )
+    parser.add_argument("--seed",type=int,choices=[1,2,3],default=1)
+    parser.add_argument("--lr",type=float,choices=[0.0005,0.0001],default=0.0005)
+    parser.add_argument("--one_hot",type=int,default=0)
     parser.add_argument("--save_model",type=int,default=0)
     args=parser.parse_args()
     app_config={
         "model_name":args.model_name,
+        "dataset_name":args.dataset_name,
         "seed":args.seed,
         "lr":args.lr,
         "one_hot":args.one_hot,
-        "dataset_name":args.dataset_name,
         "save_model":args.save_model
     }
     main(**app_config)
