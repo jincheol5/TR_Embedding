@@ -39,25 +39,7 @@ class TRNet(nn.Module):
             event_t:torch.Tensor
         ):
         """
-        src node의 last_t를 확인하여서 현재 edge event의 event_t가 last_t보다 큰 경우 
-        -> dst의 cumul_mem_vec와 last_t를 업데이트 한다.
-        
-        cumul_mem_vec update 방법:
-        - encoder에 src의 cumul_mem_vec과 dst의 cumul_mem_vec을 concat하여 전달 후 output을 dst의 cumul_mem_vec으로 업데이트
-        - dst의 last_t를 event_t로 업데이트 
-
         """
-        for i in range(src.size(0)):
-            src_node=src[i:i+1]
-            dst_node=dst[i:i+1]
-            current_t=event_t[i:i+1]
-            src_vec=self.module.get_cumul_mem_vec(src_node).clone()
-            dst_vec=self.module.get_cumul_mem_vec(dst_node).clone()
-
-            if (self.module.get_last_t(src_node)<current_t).item():
-                updated_dst_vec=self.encoder(torch.cat((src_vec,dst_vec),dim=-1))
-                self.module.update_cumul_mem_vec(dst_node,updated_dst_vec)
-                self.module.update_last_t(dst_node,current_t)
 
     def forward(self,
             src:torch.Tensor,
