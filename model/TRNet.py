@@ -4,19 +4,13 @@ from module import TRNet_Module,MLP
 
 class TRNet(nn.Module):
     def __init__(self,
-            node_dim:int,
-            edge_dim:int,
-            latent_dim:int,
             mem_dim:int,
-            embed_dim:int
+            latent_dim:int
         ):
         super().__init__()
-        self.node_dim=node_dim
-        self.edge_dim=edge_dim
-        self.latent_dim=latent_dim
         self.mem_dim=mem_dim
-        self.embed_dim=embed_dim
-
+        self.latent_dim=latent_dim
+        
         # encoder
         self.encoder=MLP(
             input_dim=2*mem_dim,
@@ -39,7 +33,7 @@ class TRNet(nn.Module):
             mem_dim=self.mem_dim
         )
 
-    def embedding(self,
+    def update_mem_vec(self,
             src:torch.Tensor,
             dst:torch.Tensor,
             event_t:torch.Tensor
@@ -53,8 +47,6 @@ class TRNet(nn.Module):
         - dst의 last_t를 event_t로 업데이트 
 
         """
-        src_vecs=[]
-        dst_vecs=[]
         for i in range(src.size(0)):
             src_node=src[i:i+1]
             dst_node=dst[i:i+1]
@@ -67,29 +59,15 @@ class TRNet(nn.Module):
                 self.module.update_cumul_mem_vec(dst_node,updated_dst_vec)
                 self.module.update_last_t(dst_node,current_t)
 
-            src_vecs.append(src_vec)
-            dst_vecs.append(dst_vec)
-        return {
-            "src_vec":torch.cat(src_vecs,dim=0),
-            "dst_vec":torch.cat(dst_vecs,dim=0)
-        }
-
     def forward(self,
             src:torch.Tensor,
-            dst:torch.Tensor,
-            event_t:torch.Tensor
+            dst:torch.Tensor
         ):
         """
         TR sample에 대한 Temporal Reachability 예측.
         """
-        ### embedding
-        embedded_result=self.embedding(
-            src=src,
-            dst=dst,
-            event_t=event_t
-        )
-        src_vec=embedded_result["src_vec"] # [B,embed_dim]
-        dst_vec=embedded_result["dst_vec"] # [B,embed_dim]
+        src_vec=self.module.get_init_mem_vec(src) # [B,mem_dim]
+        dst_vec=self.module.get_cumul_mem_vec(dst) # [B,mem_dim]
 
         ### decode 
         pair_vec=torch.concat([src_vec,dst_vec],dim=-1)

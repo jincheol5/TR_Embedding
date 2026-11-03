@@ -71,7 +71,7 @@ class TRNet_Trainer:
                 event_dst=event_dst.to(device)
                 event_t=event_t.to(device)
                 event_edge=event_edge.to(device)
-                model.module.update_module_vec(
+                model.update_mem_vec(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t
@@ -177,7 +177,7 @@ class TRNet_Trainer:
                 event_dst=event_dst.to(device)
                 event_t=event_t.to(device)
                 event_edge=event_edge.to(device)
-                model.module.update_module_vec(
+                model.update_mem_vec(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t
@@ -253,7 +253,7 @@ class TRNet_Trainer:
                 event_dst=event_dst.to(device)
                 event_t=event_t.to(device)
                 event_edge=event_edge.to(device)
-                model.module.update_module_vec(
+                model.update_mem_vec(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t

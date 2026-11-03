@@ -250,11 +250,8 @@ def main(**kwargs):
             # TRNet 하이퍼 파라미터
             mem_dim=172
             model=TRNet(
-                node_dim=node_dim,
-                edge_dim=edge_dim,
-                latent_dim=latent_dim,
                 mem_dim=mem_dim,
-                embed_dim=embed_dim
+                latent_dim=latent_dim
             )
 
     ### set graph or module
