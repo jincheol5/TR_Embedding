@@ -20,7 +20,7 @@ class TRNet(nn.Module):
 
         # decoder
         self.decoder=MLP(
-            input_dim=2*mem_dim,
+            input_dim=3*mem_dim,
             latent_dim=latent_dim,
             output_dim=1
         )
@@ -67,10 +67,11 @@ class TRNet(nn.Module):
         TR sample에 대한 Temporal Reachability 예측.
         """
         # src_vec=self.module.get_init_mem_vec(src) # [B,mem_dim]
+        init_src_vec=self.module.get_init_mem_vec(src)
         src_vec=self.module.get_cumul_mem_vec(src)
         dst_vec=self.module.get_cumul_mem_vec(dst) # [B,mem_dim]
 
         ### decode 
-        pair_vec=torch.concat([src_vec,dst_vec],dim=-1)
+        pair_vec=torch.concat([init_src_vec,src_vec,dst_vec],dim=-1)
         pred_logit=self.decoder(pair_vec) # [B,1]
         return pred_logit.squeeze(-1) # [B,]
