@@ -66,7 +66,8 @@ class TRNet(nn.Module):
         """
         TR sample에 대한 Temporal Reachability 예측.
         """
-        src_vec=self.module.get_init_mem_vec(src) # [B,mem_dim]
+        # src_vec=self.module.get_init_mem_vec(src) # [B,mem_dim]
+        src_vec=self.module.get_cumul_mem_vec(src)
         dst_vec=self.module.get_cumul_mem_vec(dst) # [B,mem_dim]
 
         ### decode 
