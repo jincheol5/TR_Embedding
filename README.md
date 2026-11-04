@@ -1,23 +1,55 @@
-# Temporal Graph Embedding for Temporal Reachability Prediction
-### Implemented models:
+# Neural Networks Temporal Reachability Prediction
+### 1. Implemented models:
 > TGAT
 > 
 > TGN
-> 
+>
+> CAW-N
+>
+> GraphMixer
+>
 > DyGFormer
+>
+> TPNet
 > 
 > ReaCH-TGN
 
-### Evaluation
-> - Trained using Random Sampling
-> - Dataset: CollegeMsg
-> - Seed: 1
-> - Learning Rate: 0.0001
+
+### 2. Evaluation
+> - Dataset: CollegeMsg, soc-sign-bitcoinalpha, soc-sign-bitcoinotc
+> - Seed: 1, 2, 3
+> - Learning Rate: 0.0001, 0.0005
 > - Batch Size: 200
 
-| Model | Random | Dst Focused | Hop Range (1 <= Hop < 3) | Hop Range (3 <= Hop < 5) | Hop Range (5 <= Hop) |
-|:---:|:---:|:---:|:---:|:---:|:---:|
-| TGAT | 70.91 | 90.95 | 55.11 | 52.88 | 34.23 |
-| TGN | 80.79 | 87.03 | 84.30 | 75.38 | 60.46 |
-| DyGFormer | 60.56 | 84.42 | 43.69 | 28.73 | 14.92 |
-| ReaCH-TGN | 63.38 | 70.50 | 87.30 | 79.00 | 72.11 |
+#### 2-1. CollegeMsg
+| Model | ACC | AP | AUC | 
+|:---:|:---:|:---:|:---:|
+| TGAT | 0.0000 | 0.0000 | 0.0000 |
+| TGN | 0.0000 | 0.0000 | 0.0000 |
+| CAW-N | 0.0000 | 0.0000 | 0.0000 |
+| GraphMixer | 0.0000 | 0.0000 | 0.0000 |
+| DyGFormer | 0.0000 | 0.0000 | 0.0000 |
+| TPNet | 0.0000 | 0.0000 | 0.0000 |
+| ReaCH-TGN | 0.0000 | 0.0000 | 0.0000 |
+
+#### 2-2. soc-sign-bitcoinalpha
+| Model | ACC | AP | AUC | 
+|:---:|:---:|:---:|:---:|
+| TGAT | 0.0000 | 0.0000 | 0.0000 |
+| TGN | 0.0000 | 0.0000 | 0.0000 |
+| CAW-N | 0.0000 | 0.0000 | 0.0000 |
+| GraphMixer | 0.0000 | 0.0000 | 0.0000 |
+| DyGFormer | 0.0000 | 0.0000 | 0.0000 |
+| TPNet | 0.0000 | 0.0000 | 0.0000 |
+| ReaCH-TGN | 0.0000 | 0.0000 | 0.0000 |
+
+#### 2-3. soc-sign-bitcoinotc
+| Model | ACC | AP | AUC | 
+|:---:|:---:|:---:|:---:|
+| TGAT | 0.0000 | 0.0000 | 0.0000 |
+| TGN | 0.0000 | 0.0000 | 0.0000 |
+| CAW-N | 0.0000 | 0.0000 | 0.0000 |
+| GraphMixer | 0.0000 | 0.0000 | 0.0000 |
+| DyGFormer | 0.0000 | 0.0000 | 0.0000 |
+| TPNet | 0.0000 | 0.0000 | 0.0000 |
+| ReaCH-TGN | 0.0000 | 0.0000 | 0.0000 |
