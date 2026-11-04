@@ -9,48 +9,52 @@ class TRNet_Module(nn.Module):
         super().__init__()
         self.n_node=n_node
         self.mem_dim=mem_dim
-        # 초기 벡터
+
+        # 누적 메모리 벡터
         self.register_buffer(
-            "init_mem_vec",
+            "mem_vec",
             torch.zeros((self.n_node+1,self.mem_dim))
         )
-        # 누적 벡터
+
+        # 이전 누적 메모리 벡터 -> 해당 노드가 마지막으로 업데이트된 Timestamp 직전의 Feature Snapshot
         self.register_buffer(
-            "cumul_mem_vec",
+            "prev_mem_vec",
             torch.zeros((self.n_node+1,self.mem_dim))
         )
+
         # 업데이트 timestamp
         self.register_buffer(
             "last_t",
             torch.zeros((self.n_node+1,),dtype=torch.int64)
         )
         self.init_module_vec()
+        self.register_buffer("init_mem_vec",self.mem_vec.clone())
 
     @torch.no_grad()
     def init_module_vec(self):
-        self.init_mem_vec.normal_(
+        self.mem_vec.normal_(
             mean=0.0,
             std=self.mem_dim**-0.5
         )
-        self.cumul_mem_vec.copy_(self.init_mem_vec)
+        self.prev_mem_vec.copy_(self.mem_vec)
         self.last_t.zero_()
 
     def detach_module_vec(self):
-        self.init_mem_vec.detach_()
-        self.cumul_mem_vec.detach_()
+        self.mem_vec.detach_()
+        self.prev_mem_vec.detach_()
         self.last_t.detach_()
 
-    def get_init_mem_vec(self,node:torch.Tensor|None=None):
+    def get_mem_vec(self,node:torch.Tensor|None=None):
         if node is None:
-            return self.init_mem_vec
+            return self.mem_vec
         else:
-            return self.init_mem_vec[node]
+            return self.mem_vec[node]
 
-    def get_cumul_mem_vec(self,node:torch.Tensor|None=None):
+    def get_prev_mem_vec(self,node:torch.Tensor|None=None):
         if node is None:
-            return self.cumul_mem_vec
+            return self.prev_mem_vec
         else:
-            return self.cumul_mem_vec[node]
+            return self.prev_mem_vec[node]
 
     def get_last_t(self,node:torch.Tensor|None=None):
         if node is None:
@@ -58,16 +62,27 @@ class TRNet_Module(nn.Module):
         else:
             return self.last_t[node]
 
-    def update_cumul_mem_vec(self,
+    def update_mem_vec(self,
             node:torch.Tensor,
-            updated_cumul_mem_vec:torch.Tensor
+            updated_mem_vec:torch.Tensor
         ):
         """
         Input:
             node: [N,]
             updated_cumul_mem_vec: [N,mem_dim]
         """
-        self.cumul_mem_vec[node]=updated_cumul_mem_vec
+        self.mem_vec[node]=updated_mem_vec
+
+    def update_prev_mem_vec(self,
+            node:torch.Tensor,
+            updated_prev_mem_vec:torch.Tensor
+        ):
+        """
+        Input:
+            node: [N,]
+            updated_cumul_mem_vec: [N,mem_dim]
+        """
+        self.prev_mem_vec[node]=updated_prev_mem_vec
 
     def update_last_t(self,
             node:torch.Tensor,

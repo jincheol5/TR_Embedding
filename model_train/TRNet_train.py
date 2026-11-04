@@ -49,7 +49,11 @@ class TRNet_Trainer:
         """
         for epoch in tqdm(range(kwargs["epoch"]),desc=f"Model Training..."):
             ### Epoch마다 module_vec (mem_vec, last_t) 초기화
-            model.module.init_module_vec()
+            # model.module.init_module_vec()
+            with torch.no_grad():
+                model.module.mem_vec.copy_(model.module.init_mem_vec)
+                model.module.prev_mem_vec.copy_(model.module.init_mem_vec)
+                model.module.last_t.zero_()
 
             ### Epoch마다 train_sample_loader 생성
             train_sample_loader=TrainUtils.get_TR_sample_loader(
