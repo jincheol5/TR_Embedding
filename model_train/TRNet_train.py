@@ -8,7 +8,7 @@ from utils import TrainUtils,EarlyStopper,Metric
 
 class TRNet_Trainer:
     @staticmethod
-    def train(
+    def train_v1(
             model:TRNet,
             train_loader:DataLoader,
             val_loader:DataLoader,
@@ -48,11 +48,10 @@ class TRNet_Trainer:
         Train model
         """
         for epoch in tqdm(range(kwargs["epoch"]),desc=f"Model Training..."):
-            ### Epoch마다 module_vec (mem_vec, last_t) 초기화
-            # model.module.init_module_vec()
+            ### Epoch마다 module의 cumul_mem, prev_mem을 init_mem으로 초기화
             with torch.no_grad():
-                model.module.mem_vec.copy_(model.module.init_mem_vec)
-                model.module.prev_mem_vec.copy_(model.module.init_mem_vec)
+                model.module.cumul_mem.copy_(model.module.init_mem)
+                model.module.prev_mem.copy_(model.module.init_mem)
                 model.module.last_t.zero_()
 
             ### Epoch마다 train_sample_loader 생성
@@ -75,7 +74,7 @@ class TRNet_Trainer:
                 event_dst=event_dst.to(device)
                 event_t=event_t.to(device)
                 event_edge=event_edge.to(device)
-                model.update_mem_vec(
+                model.update_mem(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t
@@ -107,7 +106,164 @@ class TRNet_Trainer:
                 optimizer.step()
 
                 ### detach module vec
-                model.module.detach_module_vec()
+                model.module.detach_module()
+
+            """
+            Validate Model
+            """
+            val_result=TRNet_Trainer.validate(
+                model=model,
+                val_loader=val_loader,
+                val_sample_loader=val_sample_loader,
+                **kwargs
+            )
+            val_acc=val_result["acc"]
+            val_ap=val_result["ap"]
+            val_auc=val_result["auc"]
+            print(f"{epoch+1} epoch  Validate ACC: {val_acc}")
+            print(f"{epoch+1} epoch  Validate AP: {val_ap}")
+            print(f"{epoch+1} epoch  Validate AUC: {val_auc}")
+
+            """
+            Check Early Stop
+            """
+            val_loss=val_result["loss"]
+            print(f"{epoch+1} epoch Validate Loss: {val_loss}")
+            if kwargs["early_stop"]:
+                pre_model=early_stop(
+                    val_loss=val_loss,
+                    model=model
+                )
+                if early_stop.early_stop:
+                    model=pre_model
+                    print(f"Early Stop in epoch {epoch+1}")
+                    break
+
+        if kwargs["early_stop"] and early_stop.best_state is not None:
+            model.load_state_dict(early_stop.best_state)
+        return model
+
+    @staticmethod
+    def train(
+            model:TRNet,
+            train_loader:DataLoader,
+            val_loader:DataLoader,
+            val_sample_loader:list,
+            train_TR_label:torch.Tensor,
+            bptt_batches:int=10,
+            **kwargs
+        ):
+        """Train with one backward/step/detach per consecutive batch window.
+
+        bptt_batches controls the number of batches retaining the memory graph.
+        Each window uses sample-averaged BCE, including the final partial window.
+        Set bptt_batches=1 for a single-batch backpropagation window.
+        """
+        if isinstance(bptt_batches,bool) or not isinstance(bptt_batches,int) or bptt_batches<1:
+            raise ValueError("bptt_batches must be a positive integer")
+        if torch.cuda.is_available():
+            device=torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            device=torch.device("mps")
+        else:
+            device=torch.device("cpu")
+        model=model.to(device)
+
+        if kwargs["optimizer"]=="adam":
+            optimizer=torch.optim.Adam(
+                model.parameters(),
+                lr=kwargs["lr"]
+            )
+        else:
+            optimizer=torch.optim.SGD(
+                model.parameters(),
+                lr=kwargs["lr"]
+            )
+
+        """
+        Set Early Stopper
+        """
+        if kwargs["early_stop"]:
+            early_stop=EarlyStopper(patience=kwargs["patience"])
+
+        """
+        Train model
+        """
+        for epoch in tqdm(range(kwargs["epoch"]),desc=f"Model Training..."):
+            ### Epoch마다 module의 cumul_mem, prev_mem을 init_mem으로 초기화
+            with torch.no_grad():
+                model.module.cumul_mem.copy_(model.module.init_mem)
+                model.module.prev_mem.copy_(model.module.init_mem)
+                model.module.last_t.zero_()
+
+            ### Epoch마다 train_sample_loader 생성
+            train_sample_loader=TrainUtils.get_TR_sample_loader(
+                graph_loader=train_loader,
+                n_sample=kwargs["n_sample"],
+                n_pair=kwargs["n_pair"],
+                candidates=kwargs["train_candidates"],
+                TR_label=train_TR_label
+            )
+            if len(train_sample_loader)!=len(train_loader):
+                raise ValueError("train_loader and train_sample_loader must have equal lengths")
+            model.train()
+            criterion=nn.BCEWithLogitsLoss(reduction="sum")
+            window_losses=[]
+            window_samples=0
+            optimizer.zero_grad()
+            for batch_event,batch_sample in tqdm(
+                    zip(train_loader,train_sample_loader),
+                    total=len(train_loader),
+                    desc=f"Training epoch {epoch+1}..."
+                ):
+                ### update module_vec of batch_eventstream
+                event_src,event_dst,event_t,event_edge=batch_event
+                event_src=event_src.to(device)
+                event_dst=event_dst.to(device)
+                event_t=event_t.to(device)
+                event_edge=event_edge.to(device)
+                model.update_mem(
+                    src=event_src,
+                    dst=event_dst,
+                    event_t=event_t
+                )
+
+                ### TR Sample
+                src=batch_sample["src"]
+                dst=batch_sample["dst"]
+                query_t=batch_sample["query_t"]
+                label=batch_sample["label"]
+                src=src.to(device)
+                dst=dst.to(device)
+                query_t=query_t.to(device)
+                label=label.to(device)
+
+                ### Forward
+                pred_logit=model(
+                    src=src,
+                    dst=dst
+                ) # [B,]
+
+                ### Loss
+                window_losses.append(criterion(pred_logit,label))
+                window_samples+=label.numel()
+
+                # Keep the recurrent graph and parameters unchanged inside the window.
+                if len(window_losses)==bptt_batches:
+                    (torch.stack(window_losses).sum()/window_samples).backward()
+                    optimizer.step()
+                    model.module.detach_module()
+                    optimizer.zero_grad()
+                    window_losses.clear()
+                    window_samples=0
+
+            # Flush a final window shorter than bptt_batches before validation.
+            if window_losses:
+                (torch.stack(window_losses).sum()/window_samples).backward()
+                optimizer.step()
+                model.module.detach_module()
+                optimizer.zero_grad()
+                window_losses.clear()
 
             """
             Validate Model
@@ -181,7 +337,7 @@ class TRNet_Trainer:
                 event_dst=event_dst.to(device)
                 event_t=event_t.to(device)
                 event_edge=event_edge.to(device)
-                model.update_mem_vec(
+                model.update_mem(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t
@@ -257,7 +413,7 @@ class TRNet_Trainer:
                 event_dst=event_dst.to(device)
                 event_t=event_t.to(device)
                 event_edge=event_edge.to(device)
-                model.update_mem_vec(
+                model.update_mem(
                     src=event_src,
                     dst=event_dst,
                     event_t=event_t
