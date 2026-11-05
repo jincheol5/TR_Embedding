@@ -227,7 +227,11 @@ def main(**kwargs):
                 aggr_fn=aggr_fn
             )
         case "TRNet":
-            pass
+            mem_dim=172
+            model=TRNet(
+                mem_dim=mem_dim,
+                latent_dim=latent_dim
+            )
 
     """
     3. Evaluate Model
@@ -300,7 +304,11 @@ def main(**kwargs):
                         test_sample_loader=test_sample_loader
                     )
                 case "TRNet":
-                    pass
+                    test_result=TRNet_Trainer.test(
+                        model=model,
+                        test_loader=test_loader,
+                        test_sample_loader=test_sample_loader
+                    )
             acc_list.append(test_result["acc"])
             ap_list.append(test_result["ap"])
             auc_list.append(test_result["auc"])
