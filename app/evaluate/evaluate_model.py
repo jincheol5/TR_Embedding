@@ -227,6 +227,7 @@ def main(**kwargs):
                 aggr_fn=aggr_fn
             )
         case "TRNet":
+            # TRNet 하이퍼 파라미터
             mem_dim=172
             model=TRNet(
                 mem_dim=mem_dim,
