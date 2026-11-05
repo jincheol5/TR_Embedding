@@ -3,7 +3,9 @@
 DATASETS=(CollegeMsg soc-sign-bitcoinalpha soc-sign-bitcoinotc)
 SEEDS=(1 2 3)
 LRS=(0.0001 0.0005)
-MODELS=(TGAT TGN CAW-N GraphMixer DyGFormer TPNet ReaCH-TGN)
+# MODELS=(TGAT TGN CAW-N GraphMixer DyGFormer TPNet ReaCH-TGN)
+MODELS=(TRNet)
+
 
 for dataset in "${DATASETS[@]}"; do
     for seed in "${SEEDS[@]}"; do

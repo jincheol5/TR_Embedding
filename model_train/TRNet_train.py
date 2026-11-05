@@ -8,7 +8,7 @@ from utils import TrainUtils,EarlyStopper,Metric
 
 class TRNet_Trainer:
     @staticmethod
-    def train_v1(
+    def train(
             model:TRNet,
             train_loader:DataLoader,
             val_loader:DataLoader,
@@ -144,7 +144,7 @@ class TRNet_Trainer:
         return model
 
     @staticmethod
-    def train(
+    def train_v2(
             model:TRNet,
             train_loader:DataLoader,
             val_loader:DataLoader,
