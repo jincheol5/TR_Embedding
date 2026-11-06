@@ -236,7 +236,12 @@ def main(**kwargs):
                 aggr_fn=aggr_fn
             )
         case "TRNet":
-            pass
+            # TRNet 하이퍼 파라미터
+            mem_dim=172
+            model=TRNet(
+                mem_dim=mem_dim,
+                latent_dim=latent_dim
+            )
 
     ### set graph or module
     if model_name in ("TRNet"):
@@ -295,7 +300,11 @@ def main(**kwargs):
                 test_sample_loader=test_sample_loader
             )
         case "TRNet":
-            pass
+            test_result=TRNet_Trainer.test(
+                model=model,
+                test_loader=test_loader,
+                test_sample_loader=test_sample_loader
+            )
 
     print(f"Evaluation Result:")
     print(f"dataset: {dataset_name}")
