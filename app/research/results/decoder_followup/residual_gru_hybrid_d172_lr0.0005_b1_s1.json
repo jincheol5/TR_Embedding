@@ -1,0 +1,183 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4289286374591646,
+      "validation": {
+        "loss": 0.45456265936957463,
+        "acc": 0.7947777777777778,
+        "ap": 0.8909606353527421,
+        "auc": 0.8882741234567902,
+        "n": 9000
+      },
+      "seconds": 15.72130562493112
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.40867080688476565,
+      "validation": {
+        "loss": 0.45267748514811196,
+        "acc": 0.7993333333333333,
+        "ap": 0.8877711287770922,
+        "auc": 0.8855754567901234,
+        "n": 9000
+      },
+      "seconds": 16.09772650001105
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.3892858450753348,
+      "validation": {
+        "loss": 0.4696377080281576,
+        "acc": 0.7922222222222223,
+        "ap": 0.8952039388449352,
+        "auc": 0.8930705432098766,
+        "n": 9000
+      },
+      "seconds": 14.969919833936729
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.38480890710013255,
+      "validation": {
+        "loss": 0.49053955756293405,
+        "acc": 0.7773333333333333,
+        "ap": 0.8896400639897399,
+        "auc": 0.8922738024691359,
+        "n": 9000
+      },
+      "seconds": 15.07396604202222
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.37426153310139976,
+      "validation": {
+        "loss": 0.42243246375189886,
+        "acc": 0.8115555555555556,
+        "ap": 0.8898763986302746,
+        "auc": 0.8911031604938272,
+        "n": 9000
+      },
+      "seconds": 17.3155312910676
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.368044491540818,
+      "validation": {
+        "loss": 0.47025752936469184,
+        "acc": 0.7831111111111111,
+        "ap": 0.8743327343800269,
+        "auc": 0.8833307160493827,
+        "n": 9000
+      },
+      "seconds": 16.506527750054374
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.36918131256103515,
+      "validation": {
+        "loss": 0.43345881907145184,
+        "acc": 0.8123333333333334,
+        "ap": 0.8948606624038438,
+        "auc": 0.8953925432098765,
+        "n": 9000
+      },
+      "seconds": 18.887703291955404
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3534673832484654,
+      "validation": {
+        "loss": 0.4263695899115668,
+        "acc": 0.8077777777777778,
+        "ap": 0.8872714006541866,
+        "auc": 0.8920653580246914,
+        "n": 9000
+      },
+      "seconds": 20.044533665990457
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3538090615953718,
+      "validation": {
+        "loss": 0.4229566819932726,
+        "acc": 0.8152222222222222,
+        "ap": 0.8900894573533485,
+        "auc": 0.8922943209876543,
+        "n": 9000
+      },
+      "seconds": 20.20820287510287
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.3433716923849923,
+      "validation": {
+        "loss": 0.46693998379177515,
+        "acc": 0.7873333333333333,
+        "ap": 0.8800770361227599,
+        "auc": 0.8875203209876544,
+        "n": 9000
+      },
+      "seconds": 21.201064124936238
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.3405619366055443,
+      "validation": {
+        "loss": 0.4363460231357151,
+        "acc": 0.8054444444444444,
+        "ap": 0.8887841564681244,
+        "auc": 0.8936127407407406,
+        "n": 9000
+      },
+      "seconds": 21.07619620906189
+    }
+  ],
+  "best_epoch": 7,
+  "validation": {
+    "loss": 0.43345881907145184,
+    "acc": 0.8123333333333334,
+    "ap": 0.8948606624038438,
+    "auc": 0.8953925432098765,
+    "n": 9000
+  },
+  "elapsed_seconds": 200.115454667015,
+  "epochs_run": 11,
+  "config": {
+    "dataset": "CollegeMsg",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "encoder_type": "residual_gru",
+    "decoder_input": "hybrid"
+  },
+  "stage": "decoder_followup",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 297218,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "6516d969e965ab6a23032a45114da3fc6388821438f5983ffe395aa979e5c8a2",
+  "checkpoint": "app/research/checkpoints/decoder_followup/residual_gru_hybrid_d172_lr0.0005_b1_s1.pt"
+}

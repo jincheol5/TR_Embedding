@@ -1,0 +1,62 @@
+{
+  "stage": "refinement",
+  "configs": [
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "seed": 1,
+      "decoder_input": "concat",
+      "encoder_type": "residual_gru",
+      "lr": 0.0001,
+      "bptt_batches": 1
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "seed": 1,
+      "decoder_input": "concat",
+      "encoder_type": "residual_gru",
+      "lr": 0.0005,
+      "bptt_batches": 4
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "seed": 1,
+      "decoder_input": "concat",
+      "encoder_type": "lru",
+      "lr": 0.0001,
+      "bptt_batches": 1
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "seed": 1,
+      "decoder_input": "concat",
+      "encoder_type": "lru",
+      "lr": 0.0005,
+      "bptt_batches": 4
+    }
+  ],
+  "epochs": 20,
+  "patience": 4,
+  "test_evaluation": false,
+  "command": [
+    "/Users/jincheol/github_repo/TR_Embedding/app/research/run.py",
+    "--stage",
+    "refinement",
+    "--config-file",
+    "app/research/refinement_configs.json",
+    "--epochs",
+    "20",
+    "--patience",
+    "4",
+    "--workers",
+    "2"
+  ],
+  "created_unix": 1793953872.793172
+}

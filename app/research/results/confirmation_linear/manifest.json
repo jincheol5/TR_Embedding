@@ -1,0 +1,88 @@
+{
+  "stage": "confirmation_linear",
+  "configs": [
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "mingru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "mingru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 2,
+      "bptt_batches": 1,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "mingru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 3,
+      "bptt_batches": 1,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "lru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 4,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "lru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 2,
+      "bptt_batches": 4,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "lru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 3,
+      "bptt_batches": 4,
+      "event_backend": "wave"
+    }
+  ],
+  "epochs": 50,
+  "patience": 10,
+  "test_evaluation": false,
+  "command": [
+    "/Users/jincheol/github_repo/TR_Embedding/app/research/run.py",
+    "--stage",
+    "confirmation_linear",
+    "--config-file",
+    "app/research/confirmation_linear_configs.json",
+    "--epochs",
+    "50",
+    "--patience",
+    "10",
+    "--workers",
+    "3"
+  ],
+  "created_unix": 1793955029.741463
+}

@@ -1,0 +1,55 @@
+{
+  "stage": "confirmation",
+  "configs": [
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "residual_gru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "residual_gru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 2,
+      "bptt_batches": 1,
+      "event_backend": "wave"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "residual_gru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 3,
+      "bptt_batches": 1,
+      "event_backend": "wave"
+    }
+  ],
+  "epochs": 50,
+  "patience": 10,
+  "test_evaluation": false,
+  "command": [
+    "/Users/jincheol/github_repo/TR_Embedding/app/research/run.py",
+    "--stage",
+    "confirmation",
+    "--config-file",
+    "app/research/confirmation_baseline_configs.json",
+    "--epochs",
+    "50",
+    "--patience",
+    "10",
+    "--workers",
+    "3"
+  ],
+  "created_unix": 1793954962.399327
+}

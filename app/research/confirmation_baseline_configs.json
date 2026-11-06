@@ -1,0 +1,35 @@
+[
+  {
+    "dataset": "CollegeMsg",
+    "encoder_type": "residual_gru",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "event_backend": "wave"
+  },
+  {
+    "dataset": "CollegeMsg",
+    "encoder_type": "residual_gru",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 2,
+    "bptt_batches": 1,
+    "event_backend": "wave"
+  },
+  {
+    "dataset": "CollegeMsg",
+    "encoder_type": "residual_gru",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 3,
+    "bptt_batches": 1,
+    "event_backend": "wave"
+  }
+]

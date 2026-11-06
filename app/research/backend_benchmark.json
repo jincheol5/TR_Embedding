@@ -1,0 +1,66 @@
+{
+  "purpose": "Validate and time the optional wave scheduler without changing the TRNet scientific update rule",
+  "dataset": "CollegeMsg",
+  "train_events": 41858,
+  "train_batches": 210,
+  "batch_size": 200,
+  "device": "cpu",
+  "torch_threads": 1,
+  "mem_dim": 172,
+  "latent_dim": 172,
+  "decoder_input": "concat",
+  "model_seed": 19,
+  "sampling": "cached seed 1 epoch 0 actual training queries",
+  "procedure": "One complete training-prefix replay per encoder/backend, BCE forward and backward for each batch, zero_grad and memory detach each batch, no optimizer update; identical initial state_dict restored before each backend",
+  "timing_limitations": "Single timing per backend in sequential-then-wave order; other research processes were active. Timings are indicative, not a controlled throughput benchmark. Frozen parameters isolate scheduling parity from optimizer trajectory roundoff.",
+  "wave_count_per_batch": {
+    "mean": 47.714285714285715,
+    "max": 138
+  },
+  "parity_test": {
+    "command": "python -m unittest app.research.test_wave app.research.test_encoders -v",
+    "passed_tests": 6,
+    "coverage": "all six encoders and all three decoder inputs, timestamp ties straddling batch boundaries, self-loops, fan-in, fan-out, outputs, state buffers, parameter gradients, empty batch, original implementation parity",
+    "max_state_abs_error": 1.1920928955078125e-7,
+    "max_output_abs_error": 2.9802322387695312e-8,
+    "max_gradient_abs_error": 2.9802322387695312e-8
+  },
+  "results": [
+    {
+      "encoder": "residual_gru",
+      "seconds": {"sequential": 12.612902875058353, "wave": 4.097702249884605},
+      "speedup": 3.0780427922535227,
+      "max_final_state_abs_error": 1.043081283569336e-7
+    },
+    {
+      "encoder": "normalized_gru",
+      "seconds": {"sequential": 13.329098792048171, "wave": 4.347899499814957},
+      "speedup": 3.0656409589539604,
+      "max_final_state_abs_error": 1.0132789611816406e-6
+    },
+    {
+      "encoder": "diagonal",
+      "seconds": {"sequential": 8.603032457875088, "wave": 3.072929250076413},
+      "speedup": 2.7996194372718346,
+      "max_final_state_abs_error": 1.33514404296875e-5
+    },
+    {
+      "encoder": "lru",
+      "seconds": {"sequential": 12.319183584069833, "wave": 3.964746749959886},
+      "speedup": 3.1071804483336734,
+      "max_final_state_abs_error": 4.470348358154297e-6
+    },
+    {
+      "encoder": "gated_linear",
+      "seconds": {"sequential": 13.240314624970779, "wave": 4.254050000105053},
+      "speedup": 3.112402210750652,
+      "max_final_state_abs_error": 8.58306884765625e-6
+    },
+    {
+      "encoder": "mingru",
+      "seconds": {"sequential": 9.501821916084737, "wave": 3.23451608303003},
+      "speedup": 2.9376332261682925,
+      "max_final_state_abs_error": 1.1920928955078125e-6
+    }
+  ]
+}

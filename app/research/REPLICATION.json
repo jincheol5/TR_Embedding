@@ -1,0 +1,288 @@
+{
+  "selection_rule": "validation mean AUC, then AP, then ACC",
+  "minimum_seeds": 3,
+  "summaries": [
+    {
+      "stage": "replication",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "residual_gru",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 24
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8364814814814815,
+          "std": 0.03138064460725877,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9093431702484568,
+          "std": 0.018228681379489287,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9137474238683128,
+          "std": 0.01499399844092136,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        10,
+        23,
+        24
+      ],
+      "paths": [
+        "app/research/results/replication/residual_gru_concat_d172_lr0.0005_b1_s1.json",
+        "app/research/results/replication/residual_gru_concat_d172_lr0.0005_b1_s2.json",
+        "app/research/results/replication/residual_gru_concat_d172_lr0.0005_b1_s3.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 383.32887531933375,
+        "std": 91.47421495890538,
+        "n": 3
+      },
+      "trainable_parameters": 297218
+    },
+    {
+      "stage": "replication",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "normalized_gru",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 24
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8083703703703704,
+          "std": 0.035175983202160546,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9044073257106992,
+          "std": 0.0022265790204767646,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9095876378600822,
+          "std": 0.004072487029855633,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        24,
+        10,
+        20
+      ],
+      "paths": [
+        "app/research/results/replication/normalized_gru_concat_d172_lr0.0005_b1_s1.json",
+        "app/research/results/replication/normalized_gru_concat_d172_lr0.0005_b1_s2.json",
+        "app/research/results/replication/normalized_gru_concat_d172_lr0.0005_b1_s3.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 598.0470721529952,
+        "std": 119.22137622353868,
+        "n": 3
+      },
+      "trainable_parameters": 297562
+    },
+    {
+      "stage": "replication",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "mingru",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 24
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8196296296296296,
+          "std": 0.0007229341220719803,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9058321935979041,
+          "std": 0.0090837024106317,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.905987366255144,
+          "std": 0.009985805033951516,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        5,
+        10,
+        24
+      ],
+      "paths": [
+        "app/research/results/replication/mingru_concat_d172_lr0.0005_b1_s1.json",
+        "app/research/results/replication/mingru_concat_d172_lr0.0005_b1_s2.json",
+        "app/research/results/replication/mingru_concat_d172_lr0.0005_b1_s3.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 167.80250677800117,
+        "std": 72.10895904355735,
+        "n": 3
+      },
+      "trainable_parameters": 178366
+    },
+    {
+      "stage": "replication",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "lru",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 24
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8258518518518518,
+          "std": 0.01480504307361254,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9042332863319069,
+          "std": 0.007036023326288913,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9029082469135801,
+          "std": 0.009060858544956552,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        5,
+        3,
+        23
+      ],
+      "paths": [
+        "app/research/results/replication/lru_concat_d172_lr0.0005_b1_s1.json",
+        "app/research/results/replication/lru_concat_d172_lr0.0005_b1_s2.json",
+        "app/research/results/replication/lru_concat_d172_lr0.0005_b1_s3.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 227.36942706932314,
+        "std": 130.02793754743087,
+        "n": 3
+      },
+      "trainable_parameters": 148868
+    }
+  ],
+  "winners": {
+    "replication": {
+      "stage": "replication",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "residual_gru",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 24
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8364814814814815,
+          "std": 0.03138064460725877,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9093431702484568,
+          "std": 0.018228681379489287,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9137474238683128,
+          "std": 0.01499399844092136,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        10,
+        23,
+        24
+      ],
+      "paths": [
+        "app/research/results/replication/residual_gru_concat_d172_lr0.0005_b1_s1.json",
+        "app/research/results/replication/residual_gru_concat_d172_lr0.0005_b1_s2.json",
+        "app/research/results/replication/residual_gru_concat_d172_lr0.0005_b1_s3.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 383.32887531933375,
+        "std": 91.47421495890538,
+        "n": 3
+      },
+      "trainable_parameters": 297218
+    }
+  }
+}

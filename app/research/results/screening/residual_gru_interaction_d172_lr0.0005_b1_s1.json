@@ -1,0 +1,159 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6874625302269345,
+      "validation": {
+        "loss": 0.6905462019178602,
+        "acc": 0.5388888888888889,
+        "ap": 0.5517884188213952,
+        "auc": 0.5607194074074074,
+        "n": 9000
+      },
+      "seconds": 9.608968749991618
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.6768832408360073,
+      "validation": {
+        "loss": 0.6875137125651042,
+        "acc": 0.5611111111111111,
+        "ap": 0.5636773739275136,
+        "auc": 0.5787481975308642,
+        "n": 9000
+      },
+      "seconds": 9.757759624975733
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.6709319988432385,
+      "validation": {
+        "loss": 0.6971319054497613,
+        "acc": 0.5463333333333333,
+        "ap": 0.563823263693701,
+        "auc": 0.5731023209876543,
+        "n": 9000
+      },
+      "seconds": 10.85316574992612
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.6674206942603702,
+      "validation": {
+        "loss": 0.6901358591715495,
+        "acc": 0.5536666666666666,
+        "ap": 0.5653441968053405,
+        "auc": 0.5777073086419753,
+        "n": 9000
+      },
+      "seconds": 10.174908708082512
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.6652778781709217,
+      "validation": {
+        "loss": 0.692421868218316,
+        "acc": 0.5544444444444444,
+        "ap": 0.5672847697775052,
+        "auc": 0.5787914814814814,
+        "n": 9000
+      },
+      "seconds": 9.942610749974847
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.6646891893659319,
+      "validation": {
+        "loss": 0.6998145158555773,
+        "acc": 0.5528888888888889,
+        "ap": 0.5699699641991274,
+        "auc": 0.5759026172839505,
+        "n": 9000
+      },
+      "seconds": 10.283893625019118
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.6624495595296224,
+      "validation": {
+        "loss": 0.692168955485026,
+        "acc": 0.5532222222222222,
+        "ap": 0.5679968548050794,
+        "auc": 0.5755165432098766,
+        "n": 9000
+      },
+      "seconds": 10.582526957965456
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.6629107366289412,
+      "validation": {
+        "loss": 0.69290382554796,
+        "acc": 0.5528888888888889,
+        "ap": 0.5660669493770748,
+        "auc": 0.5724718518518518,
+        "n": 9000
+      },
+      "seconds": 10.363853082992136
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.6606636445181711,
+      "validation": {
+        "loss": 0.6923393961588542,
+        "acc": 0.5521111111111111,
+        "ap": 0.5659767980000203,
+        "auc": 0.5730849382716049,
+        "n": 9000
+      },
+      "seconds": 10.99650524999015
+    }
+  ],
+  "best_epoch": 5,
+  "validation": {
+    "loss": 0.692421868218316,
+    "acc": 0.5544444444444444,
+    "ap": 0.5672847697775052,
+    "auc": 0.5787914814814814,
+    "n": 9000
+  },
+  "elapsed_seconds": 93.92560608300846,
+  "epochs_run": 9,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "residual_gru",
+    "decoder_input": "interaction",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1
+  },
+  "stage": "screening",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 297218,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "b4f860a3a9e107d378f8c6af3fe3987783d2e6b95153a6c6715388f755286981",
+  "checkpoint": "app/research/checkpoints/screening/residual_gru_interaction_d172_lr0.0005_b1_s1.pt"
+}

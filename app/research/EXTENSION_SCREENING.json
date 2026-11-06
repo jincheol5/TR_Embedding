@@ -1,0 +1,538 @@
+{
+  "selection_rule": "validation mean AUC, then AP, then ACC",
+  "minimum_seeds": 1,
+  "summaries": [
+    {
+      "stage": "extension_readout",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "matrix_query_raw",
+        "encoder_type": "deltanet",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7982222222222223,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8699298701314584,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8663825679012347,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        15
+      ],
+      "paths": [
+        "app/research/results/extension_readout/deltanet_matrix_query_raw_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 148.243208500091,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 219994
+    },
+    {
+      "stage": "extension_readout",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "matrix_query_raw",
+        "encoder_type": "mlstm",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7578888888888888,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8325863895697077,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8480198518518518,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        10
+      ],
+      "paths": [
+        "app/research/results/extension_readout/mlstm_matrix_query_raw_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 162.6034664590843,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 220686
+    },
+    {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "matrix_query",
+        "encoder_type": "deltanet",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7932222222222223,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.895299129333378,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8884771851851851,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        14
+      ],
+      "paths": [
+        "app/research/results/extension_screen/deltanet_matrix_query_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 170.11173479212448,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 219994
+    },
+    {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "matrix_query",
+        "encoder_type": "mlstm",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.8136666666666666,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.882446881424061,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8806881481481481,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        15
+      ],
+      "paths": [
+        "app/research/results/extension_screen/mlstm_matrix_query_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 195.3748608340975,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 220686
+    },
+    {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "deltanet",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 16,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7584444444444445,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8435019074102016,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8482290370370371,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        8
+      ],
+      "paths": [
+        "app/research/results/extension_screen/deltanet_concat_d172_lr0.0005_b1_s1_wave_x2118f37136.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 154.01923625008203,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 231002
+    },
+    {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "mlstm",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7685555555555555,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8217956187069013,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8445268641975309,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        7
+      ],
+      "paths": [
+        "app/research/results/extension_screen/mlstm_concat_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 114.52087070792913,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 220686
+    },
+    {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "deltanet",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7162222222222222,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8325806592443215,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8374571851851852,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        4
+      ],
+      "paths": [
+        "app/research/results/extension_screen/deltanet_concat_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 72.04445341718383,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 219994
+    },
+    {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "mlstm",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 16,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7225555555555555,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8112804851226391,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8297578271604938,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        6
+      ],
+      "paths": [
+        "app/research/results/extension_screen/mlstm_concat_d172_lr0.0005_b1_s1_wave_x2118f37136.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 130.12490629102103,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 231694
+    }
+  ],
+  "winners": {
+    "extension_readout": {
+      "stage": "extension_readout",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "matrix_query_raw",
+        "encoder_type": "deltanet",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7982222222222223,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.8699298701314584,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8663825679012347,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        15
+      ],
+      "paths": [
+        "app/research/results/extension_readout/deltanet_matrix_query_raw_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 148.243208500091,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 219994
+    },
+    "extension_screen": {
+      "stage": "extension_screen",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "matrix_query",
+        "encoder_type": "deltanet",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "matrix_heads": 4,
+        "matrix_key_dim": 8,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 5,
+        "requested_epochs": 16
+      },
+      "seeds": [
+        1
+      ],
+      "n_runs": 1,
+      "validation": {
+        "acc": {
+          "mean": 0.7932222222222223,
+          "std": null,
+          "n": 1
+        },
+        "ap": {
+          "mean": 0.895299129333378,
+          "std": null,
+          "n": 1
+        },
+        "auc": {
+          "mean": 0.8884771851851851,
+          "std": null,
+          "n": 1
+        }
+      },
+      "best_epochs": [
+        14
+      ],
+      "paths": [
+        "app/research/results/extension_screen/deltanet_matrix_query_d172_lr0.0005_b1_s1_wave_xba22839d0b.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 170.11173479212448,
+        "std": null,
+        "n": 1
+      },
+      "trainable_parameters": 219994
+    }
+  }
+}

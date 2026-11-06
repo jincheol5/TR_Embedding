@@ -1,0 +1,56 @@
+{
+  "stage": "benchmark",
+  "configs": [
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "residual_gru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "diagonal",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "lru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1
+    }
+  ],
+  "epochs": 1,
+  "patience": 1,
+  "test_evaluation": false,
+  "command": [
+    "/Users/jincheol/github_repo/TR_Embedding/app/research/run.py",
+    "--stage",
+    "benchmark",
+    "--encoders",
+    "residual_gru",
+    "diagonal",
+    "lru",
+    "--decoder-inputs",
+    "concat",
+    "--epochs",
+    "1",
+    "--patience",
+    "1",
+    "--workers",
+    "3"
+  ],
+  "created_unix": 1793953332.724461
+}

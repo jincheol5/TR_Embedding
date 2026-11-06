@@ -1,0 +1,280 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4286244467780704,
+      "validation": {
+        "loss": 0.4541260631636619,
+        "acc": 0.7988888888888889,
+        "ap": 0.8872506563185262,
+        "auc": 0.8873453827160493,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.008475645409502327
+      },
+      "seconds": 20.48423087480478,
+      "scaled_kl_per_step": 1.5417465868450346,
+      "kl_sum": 62445.64453125,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4129693710690453,
+      "validation": {
+        "loss": 0.4741310117520265,
+        "acc": 0.7791111111111111,
+        "ap": 0.8712560974554315,
+        "auc": 0.8807737283950617,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.009020787983252143
+      },
+      "seconds": 19.798744875006378,
+      "scaled_kl_per_step": 1.449393119698479,
+      "kl_sum": 59269.0390625,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.392577387491862,
+      "validation": {
+        "loss": 0.44351977674101395,
+        "acc": 0.7997777777777778,
+        "ap": 0.8843672072775554,
+        "auc": 0.8840911604938272,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.018600422177313936
+      },
+      "seconds": 21.287661290960386,
+      "scaled_kl_per_step": 1.3754447170666286,
+      "kl_sum": 56216.0859375,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.3890003916422526,
+      "validation": {
+        "loss": 0.4734810487160832,
+        "acc": 0.783,
+        "ap": 0.8773800969132683,
+        "auc": 0.8842637037037038,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.016790434540635096
+      },
+      "seconds": 20.149883624864742,
+      "scaled_kl_per_step": 1.3037752866744996,
+      "kl_sum": 53229.58984375,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3722772635505313,
+      "validation": {
+        "loss": 0.43813748361178684,
+        "acc": 0.8114444444444444,
+        "ap": 0.8888998024521533,
+        "auc": 0.8894833580246913,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.01809729525525961
+      },
+      "seconds": 19.47415545815602,
+      "scaled_kl_per_step": 1.2326884911173865,
+      "kl_sum": 50261.12109375,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3674636163257417,
+      "validation": {
+        "loss": 0.4652632211691028,
+        "acc": 0.7906666666666666,
+        "ap": 0.8591407939432382,
+        "auc": 0.8782735802469136,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.018929420735773805
+      },
+      "seconds": 24.931304833851755,
+      "scaled_kl_per_step": 1.162418788387662,
+      "kl_sum": 47329.5390625,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.3671081164223807,
+      "validation": {
+        "loss": 0.43798504300638946,
+        "acc": 0.8073333333333333,
+        "ap": 0.8845099412687112,
+        "auc": 0.8835194074074074,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.03273871192680751
+      },
+      "seconds": 25.374705707887188,
+      "scaled_kl_per_step": 1.0929084590503149,
+      "kl_sum": 44427.375,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3541931546529134,
+      "validation": {
+        "loss": 0.45912144391765386,
+        "acc": 0.7958888888888889,
+        "ap": 0.8767804209227527,
+        "auc": 0.8787643950617285,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.015356743100097506
+      },
+      "seconds": 27.789260333869606,
+      "scaled_kl_per_step": 1.0242576272714705,
+      "kl_sum": 41565.94140625,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3480044007074265,
+      "validation": {
+        "loss": 0.4709502753427152,
+        "acc": 0.7897777777777778,
+        "ap": 0.8502084087856292,
+        "auc": 0.8639992839506172,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.029704126557383435
+      },
+      "seconds": 28.5785654168576,
+      "scaled_kl_per_step": 0.9569395445642017,
+      "kl_sum": 38762.1015625,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.33300066266741074,
+      "validation": {
+        "loss": 0.4474447064797294,
+        "acc": 0.8001111111111111,
+        "ap": 0.8776873638561162,
+        "auc": 0.8835328888888889,
+        "n": 9000,
+        "mc_samples": 3,
+        "mc_seed": 572000,
+        "mc_probability_std_mean": 0.02811540930717613
+      },
+      "seconds": 28.674091916065663,
+      "scaled_kl_per_step": 0.8911656677722931,
+      "kl_sum": 36032.01953125,
+      "kl_weight": 1.0,
+      "train_query_count": 42000
+    }
+  ],
+  "best_epoch": 5,
+  "validation": {
+    "loss": 0.43813748361178684,
+    "acc": 0.8114444444444444,
+    "ap": 0.8888998024521533,
+    "auc": 0.8894833580246913,
+    "n": 9000,
+    "mc_samples": 3,
+    "mc_seed": 572000,
+    "mc_probability_std_mean": 0.01809729525525961
+  },
+  "elapsed_seconds": 237.90556591702625,
+  "epochs_run": 10,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "bayesian_mingru",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "event_backend": "wave",
+    "decoder_input": "concat",
+    "bayes_prior_std": 0.1,
+    "bayes_posterior_rho_init": -5.0,
+    "mc_samples": 3,
+    "test_mc_samples": 10,
+    "kl_weight": 1.0
+  },
+  "stage": "extension_bayesian_screen",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 207950,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 16,
+  "patience": 5,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "state_buffer_bytes": 3936800,
+  "state_buffers": {
+    "init_mem": {
+      "shape": [
+        1900,
+        172
+      ],
+      "bytes": 1307200
+    },
+    "cumul_mem": {
+      "shape": [
+        1900,
+        172
+      ],
+      "bytes": 1307200
+    },
+    "prev_mem": {
+      "shape": [
+        1900,
+        172
+      ],
+      "bytes": 1307200
+    },
+    "last_t": {
+      "shape": [
+        1900
+      ],
+      "bytes": 15200
+    }
+  },
+  "training_samples_sha256": "ba2640e06085c87bd5aab41ea63b6a382b66178e6567c3201359ea96b5285654",
+  "checkpoint": "app/research/checkpoints/extension_bayesian_screen/bayesian_mingru_concat_d172_lr0.0005_b1_s1_wave_x8287d1dbb7.pt"
+}

@@ -1,0 +1,236 @@
+{
+  "selection_rule": "validation mean AUC, then AP, then ACC",
+  "minimum_seeds": 3,
+  "summaries": [
+    {
+      "stage": "confirmation",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "residual_gru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 10,
+        "requested_epochs": 50
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8527037037037037,
+          "std": 0.032552584872679535,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9201455258942018,
+          "std": 0.02323596056362859,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9226465020576132,
+          "std": 0.02398492905458749,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        5,
+        34,
+        41
+      ],
+      "paths": [
+        "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s1_wave.json",
+        "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s2_wave.json",
+        "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s3_wave.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 479.83397202799097,
+        "std": 221.04113403278032,
+        "n": 3
+      },
+      "trainable_parameters": 297218
+    },
+    {
+      "stage": "confirmation_linear",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "mingru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 10,
+        "requested_epochs": 50
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.863074074074074,
+          "std": 0.014616637456507554,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9334190700771624,
+          "std": 0.0047712924128433,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9337348477366255,
+          "std": 0.00521128123859597,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        49,
+        50,
+        45
+      ],
+      "paths": [
+        "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s1_wave.json",
+        "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s2_wave.json",
+        "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s3_wave.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 435.65818156938377,
+        "std": 11.66481550352706,
+        "n": 3
+      },
+      "trainable_parameters": 178366
+    }
+  ],
+  "winners": {
+    "confirmation": {
+      "stage": "confirmation",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "residual_gru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 10,
+        "requested_epochs": 50
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.8527037037037037,
+          "std": 0.032552584872679535,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9201455258942018,
+          "std": 0.02323596056362859,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9226465020576132,
+          "std": 0.02398492905458749,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        5,
+        34,
+        41
+      ],
+      "paths": [
+        "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s1_wave.json",
+        "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s2_wave.json",
+        "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s3_wave.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 479.83397202799097,
+        "std": 221.04113403278032,
+        "n": 3
+      },
+      "trainable_parameters": 297218
+    },
+    "confirmation_linear": {
+      "stage": "confirmation_linear",
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "mingru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "controls": {
+        "grad_clip": 1.0,
+        "patience": 10,
+        "requested_epochs": 50
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "n_runs": 3,
+      "validation": {
+        "acc": {
+          "mean": 0.863074074074074,
+          "std": 0.014616637456507554,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9334190700771624,
+          "std": 0.0047712924128433,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9337348477366255,
+          "std": 0.00521128123859597,
+          "n": 3
+        }
+      },
+      "best_epochs": [
+        49,
+        50,
+        45
+      ],
+      "paths": [
+        "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s1_wave.json",
+        "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s2_wave.json",
+        "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s3_wave.json"
+      ],
+      "elapsed_seconds": {
+        "mean": 435.65818156938377,
+        "std": 11.66481550352706,
+        "n": 3
+      },
+      "trainable_parameters": 178366
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4332431108383905,
+      "validation": {
+        "loss": 0.43475369856092666,
+        "acc": 0.8124444444444444,
+        "ap": 0.8879902689932494,
+        "auc": 0.888339061728395,
+        "n": 9000
+      },
+      "seconds": 10.356361208949238
+    }
+  ],
+  "best_epoch": 1,
+  "validation": {
+    "loss": 0.43475369856092666,
+    "acc": 0.8124444444444444,
+    "ap": 0.8879902689932494,
+    "auc": 0.888339061728395,
+    "n": 9000
+  },
+  "elapsed_seconds": 12.477859125006944,
+  "epochs_run": 1,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "lru",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1
+  },
+  "stage": "benchmark",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 148868,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 1,
+  "patience": 1,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "232201d42dcbd3b312ac2a35e178ad13b4c6bd8d43c07600403da696eb571d71",
+  "checkpoint": "app/research/checkpoints/benchmark/lru_concat_d172_lr0.0005_b1_s1.pt"
+}

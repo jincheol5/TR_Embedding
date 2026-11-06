@@ -1,0 +1,171 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6906541279384069,
+      "validation": {
+        "loss": 0.6889897528754341,
+        "acc": 0.5428888888888889,
+        "ap": 0.5404769988263723,
+        "auc": 0.5551506913580246,
+        "n": 9000
+      },
+      "seconds": 14.827218083897606
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.6819022776285807,
+      "validation": {
+        "loss": 0.6927737291124132,
+        "acc": 0.5464444444444444,
+        "ap": 0.5538853814258846,
+        "auc": 0.5637403950617283,
+        "n": 9000
+      },
+      "seconds": 14.56085449992679
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.6738762563069661,
+      "validation": {
+        "loss": 0.6895048438178168,
+        "acc": 0.5403333333333333,
+        "ap": 0.560323852200141,
+        "auc": 0.5688782716049383,
+        "n": 9000
+      },
+      "seconds": 11.944907666998915
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.6714018051510765,
+      "validation": {
+        "loss": 0.6917923990885416,
+        "acc": 0.5603333333333333,
+        "ap": 0.5694184052666107,
+        "auc": 0.5782386172839507,
+        "n": 9000
+      },
+      "seconds": 11.71744545805268
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.6702377088637579,
+      "validation": {
+        "loss": 0.6870690070258246,
+        "acc": 0.5652222222222222,
+        "ap": 0.5683719758701444,
+        "auc": 0.5787001481481482,
+        "n": 9000
+      },
+      "seconds": 11.506624083034694
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.6678992592947823,
+      "validation": {
+        "loss": 0.6880379740397136,
+        "acc": 0.5708888888888889,
+        "ap": 0.5725478478992064,
+        "auc": 0.5873800987654321,
+        "n": 9000
+      },
+      "seconds": 11.807070416980423
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.6657362242199125,
+      "validation": {
+        "loss": 0.6875305769178602,
+        "acc": 0.567,
+        "ap": 0.5745136515166893,
+        "auc": 0.5862765679012345,
+        "n": 9000
+      },
+      "seconds": 12.377029375056736
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.6634217543829055,
+      "validation": {
+        "loss": 0.6869411010742188,
+        "acc": 0.5674444444444444,
+        "ap": 0.5709057983313455,
+        "auc": 0.5828048888888888,
+        "n": 9000
+      },
+      "seconds": 12.822635957971215
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.6617839024861654,
+      "validation": {
+        "loss": 0.6882945471869575,
+        "acc": 0.5617777777777778,
+        "ap": 0.5716351289933563,
+        "auc": 0.5813450617283951,
+        "n": 9000
+      },
+      "seconds": 12.936362124979496
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.6587376327514648,
+      "validation": {
+        "loss": 0.6884839596218533,
+        "acc": 0.5712222222222222,
+        "ap": 0.5708220837880076,
+        "auc": 0.5824461234567901,
+        "n": 9000
+      },
+      "seconds": 12.374295667046681
+    }
+  ],
+  "best_epoch": 6,
+  "validation": {
+    "loss": 0.6880379740397136,
+    "acc": 0.5708888888888889,
+    "ap": 0.5725478478992064,
+    "auc": 0.5873800987654321,
+    "n": 9000
+  },
+  "elapsed_seconds": 129.84841466706712,
+  "epochs_run": 10,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "mingru",
+    "decoder_input": "interaction",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1
+  },
+  "stage": "screening",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 178366,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "6516d969e965ab6a23032a45114da3fc6388821438f5983ffe395aa979e5c8a2",
+  "checkpoint": "app/research/checkpoints/screening/mingru_interaction_d172_lr0.0005_b1_s1.pt"
+}

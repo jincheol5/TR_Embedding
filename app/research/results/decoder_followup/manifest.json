@@ -1,0 +1,92 @@
+{
+  "stage": "decoder_followup",
+  "configs": [
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "residual_gru",
+      "decoder_input": "hybrid"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "diagonal",
+      "decoder_input": "hybrid"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "lru",
+      "decoder_input": "hybrid"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "gated_linear",
+      "decoder_input": "hybrid"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "mingru",
+      "decoder_input": "hybrid"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "normalized_gru",
+      "decoder_input": "hybrid"
+    },
+    {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "encoder_type": "normalized_gru",
+      "decoder_input": "concat"
+    }
+  ],
+  "epochs": 12,
+  "patience": 4,
+  "test_evaluation": false,
+  "command": [
+    "/Users/jincheol/github_repo/TR_Embedding/app/research/run.py",
+    "--stage",
+    "decoder_followup",
+    "--config-file",
+    "app/research/decoder_followup_configs.json",
+    "--epochs",
+    "12",
+    "--patience",
+    "4",
+    "--workers",
+    "3"
+  ],
+  "created_unix": 1793953508.3547578
+}

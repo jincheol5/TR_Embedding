@@ -1,0 +1,153 @@
+{
+  "selected_config": {
+    "bptt_batches": 1,
+    "dataset": "CollegeMsg",
+    "decoder_input": "concat",
+    "encoder_type": "mingru",
+    "event_backend": "wave",
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "mem_dim": 172
+  },
+  "selection_rule": "3-seed mean validation AUC, then AP, then ACC; all comparisons use the same budget",
+  "selected_validation": {
+    "acc": {
+      "mean": 0.863074074074074,
+      "std": 0.014616637456507554,
+      "n": 3
+    },
+    "ap": {
+      "mean": 0.9334190700771624,
+      "std": 0.0047712924128433,
+      "n": 3
+    },
+    "auc": {
+      "mean": 0.9337348477366255,
+      "std": 0.00521128123859597,
+      "n": 3
+    }
+  },
+  "source_stages": [
+    "confirmation",
+    "confirmation_linear"
+  ],
+  "result_paths": [
+    "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s1_wave.json",
+    "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s2_wave.json",
+    "app/research/results/confirmation/residual_gru_concat_d172_lr0.0005_b1_s3_wave.json",
+    "app/research/results/confirmation_linear/lru_concat_d172_lr0.0005_b4_s1_wave.json",
+    "app/research/results/confirmation_linear/lru_concat_d172_lr0.0005_b4_s2_wave.json",
+    "app/research/results/confirmation_linear/lru_concat_d172_lr0.0005_b4_s3_wave.json",
+    "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s1_wave.json",
+    "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s2_wave.json",
+    "app/research/results/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s3_wave.json"
+  ],
+  "created_unix": 1793955859.887022,
+  "best_single_seed_by_validation": 2,
+  "best_checkpoint_by_validation": "app/research/checkpoints/confirmation_linear/mingru_concat_d172_lr0.0005_b1_s2_wave.pt",
+  "test_used_for_selection": false,
+  "candidates": [
+    {
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "mingru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "validation": {
+        "acc": {
+          "mean": 0.863074074074074,
+          "std": 0.014616637456507554,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9334190700771624,
+          "std": 0.0047712924128433,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9337348477366255,
+          "std": 0.00521128123859597,
+          "n": 3
+        }
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "config": {
+        "bptt_batches": 1,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "residual_gru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "validation": {
+        "acc": {
+          "mean": 0.8527037037037037,
+          "std": 0.032552584872679535,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9201455258942018,
+          "std": 0.02323596056362859,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.9226465020576132,
+          "std": 0.02398492905458749,
+          "n": 3
+        }
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "config": {
+        "bptt_batches": 4,
+        "dataset": "CollegeMsg",
+        "decoder_input": "concat",
+        "encoder_type": "lru",
+        "event_backend": "wave",
+        "latent_dim": 172,
+        "lr": 0.0005,
+        "mem_dim": 172
+      },
+      "validation": {
+        "acc": {
+          "mean": 0.8492962962962963,
+          "std": 0.005213152091826047,
+          "n": 3
+        },
+        "ap": {
+          "mean": 0.9127103433895168,
+          "std": 0.0035196476553897584,
+          "n": 3
+        },
+        "auc": {
+          "mean": 0.917226024691358,
+          "std": 0.003168854959156726,
+          "n": 3
+        }
+      },
+      "seeds": [
+        1,
+        2,
+        3
+      ]
+    }
+  ]
+}

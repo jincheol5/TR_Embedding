@@ -1,0 +1,28 @@
+[
+  {
+    "dataset": "CollegeMsg",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "event_backend": "wave",
+    "decoder_input": "matrix_query_raw",
+    "encoder_type": "mlstm",
+    "matrix_heads": 4,
+    "matrix_key_dim": 8
+  },
+  {
+    "dataset": "CollegeMsg",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "event_backend": "wave",
+    "decoder_input": "matrix_query_raw",
+    "encoder_type": "deltanet",
+    "matrix_heads": 4,
+    "matrix_key_dim": 8
+  }
+]

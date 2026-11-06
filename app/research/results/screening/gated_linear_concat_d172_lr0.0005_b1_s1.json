@@ -1,0 +1,159 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.43288182649158297,
+      "validation": {
+        "loss": 0.5022739232381185,
+        "acc": 0.7803333333333333,
+        "ap": 0.8856444824530887,
+        "auc": 0.8853168641975309,
+        "n": 9000
+      },
+      "seconds": 17.04910012509208
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.41460841760181244,
+      "validation": {
+        "loss": 0.5959972330729166,
+        "acc": 0.7142222222222222,
+        "ap": 0.7664371942750091,
+        "auc": 0.7656798271604939,
+        "n": 9000
+      },
+      "seconds": 18.853456250042655
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.39538274029323034,
+      "validation": {
+        "loss": 0.4213790329827203,
+        "acc": 0.8123333333333334,
+        "ap": 0.8970299321893401,
+        "auc": 0.8911770370370371,
+        "n": 9000
+      },
+      "seconds": 20.80204237496946
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.38361242693946473,
+      "validation": {
+        "loss": 0.4686322953965929,
+        "acc": 0.793,
+        "ap": 0.8675721751694867,
+        "auc": 0.8762272098765432,
+        "n": 9000
+      },
+      "seconds": 19.78212337498553
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3718218035016741,
+      "validation": {
+        "loss": 0.4275302471584744,
+        "acc": 0.8181111111111111,
+        "ap": 0.898178206383789,
+        "auc": 0.8948798271604939,
+        "n": 9000
+      },
+      "seconds": 21.1536910419818
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3697445701417469,
+      "validation": {
+        "loss": 0.45861113993326824,
+        "acc": 0.8071111111111111,
+        "ap": 0.879761896179623,
+        "auc": 0.8843045925925925,
+        "n": 9000
+      },
+      "seconds": 22.806555000017397
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.36745621000017437,
+      "validation": {
+        "loss": 0.44020062849256725,
+        "acc": 0.8062222222222222,
+        "ap": 0.8979876301982378,
+        "auc": 0.8926597037037037,
+        "n": 9000
+      },
+      "seconds": 21.26945091690868
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3547794419243222,
+      "validation": {
+        "loss": 0.4268741912841797,
+        "acc": 0.8244444444444444,
+        "ap": 0.8789149458702011,
+        "auc": 0.8887401481481481,
+        "n": 9000
+      },
+      "seconds": 24.109587417100556
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3492135558355422,
+      "validation": {
+        "loss": 3.9805577596028647,
+        "acc": 0.552,
+        "ap": 0.5269034521154786,
+        "auc": 0.36928706172839504,
+        "n": 9000
+      },
+      "seconds": 21.47554116602987
+    }
+  ],
+  "best_epoch": 5,
+  "validation": {
+    "loss": 0.4275302471584744,
+    "acc": 0.8181111111111111,
+    "ap": 0.898178206383789,
+    "auc": 0.8948798271604939,
+    "n": 9000
+  },
+  "elapsed_seconds": 191.97499566699844,
+  "epochs_run": 9,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "gated_linear",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1
+  },
+  "stage": "screening",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 208294,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "6516d969e965ab6a23032a45114da3fc6388821438f5983ffe395aa979e5c8a2",
+  "checkpoint": "app/research/checkpoints/screening/gated_linear_concat_d172_lr0.0005_b1_s1.pt"
+}

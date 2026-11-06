@@ -1,0 +1,109 @@
+{
+  "dataset": "CollegeMsg",
+  "primary_selection_metric": "mean validation AUC; AP and ACC break ties",
+  "test_used_for_selection": false,
+  "screening": {
+    "encoders": [
+      "residual_gru",
+      "diagonal",
+      "lru",
+      "gated_linear",
+      "mingru"
+    ],
+    "decoder_inputs": [
+      "concat",
+      "interaction"
+    ],
+    "seeds": [
+      1
+    ],
+    "epochs": 12,
+    "patience": 4
+  },
+  "decoder_followup": {
+    "encoders_hybrid": [
+      "residual_gru",
+      "diagonal",
+      "lru",
+      "gated_linear",
+      "mingru",
+      "normalized_gru"
+    ],
+    "extra_control": "normalized_gru with concat",
+    "seeds": [
+      1
+    ],
+    "epochs": 12,
+    "patience": 4
+  },
+  "refinement": {
+    "encoders": [
+      "residual_gru",
+      "lru"
+    ],
+    "decoder_input": "concat",
+    "settings": [
+      {
+        "lr": 0.0001,
+        "bptt_batches": 1
+      },
+      {
+        "lr": 0.0005,
+        "bptt_batches": 4
+      }
+    ],
+    "seeds": [
+      1
+    ],
+    "epochs": 20,
+    "patience": 4
+  },
+  "replication": {
+    "encoders": [
+      "residual_gru",
+      "lru",
+      "mingru",
+      "normalized_gru"
+    ],
+    "reason": "Top two modern linear candidates on seed-1 validation plus original and input-normalization GRU controls; original concat retained after feature ablations",
+    "decoder_input": "concat",
+    "lr": 0.0005,
+    "bptt_batches": 1,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "epochs": 24,
+    "patience": 5
+  },
+  "shared_controls": {
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "batch_size": 200,
+    "n_samples_per_batch": 200,
+    "optimizer": "Adam",
+    "grad_clip": 1.0,
+    "paired_initial_node_vectors": true,
+    "paired_decoder_initial_weights": true,
+    "paired_epoch_training_samples": true,
+    "evaluation": "reset memory, replay full prefix with frozen checkpoint weights, then evaluate current split",
+    "acc_probability_threshold": 0.5
+  },
+  "heldout_policy": "Lock selected configuration and comparison checkpoint paths from validation before evaluating test; do not tune after test. Report all locked comparisons regardless of their test ranking.",
+  "convergence_confirmation": {
+    "trigger": "If the strongest validation configuration peaks at the 24-epoch cap or still rises near the cap",
+    "candidates": "Original GRU reference; minGRU BPTT1 (best 3-seed default linear recurrence); LRU BPTT4 (best refinement on validation). Promote normalized GRU as another control if its replication mean exceeds original GRU.",
+    "epochs": 50,
+    "patience": 10,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "selection": "Validation mean AUC then AP then ACC; no test metrics",
+    "event_backend": "wave for every arm; preserves independent-event update rules, numerical parity verified",
+    "normalized_gru_promoted": false,
+    "normalized_gru_reason": "Completed 3-seed replication validation mean AUC was below original GRU; no test metrics used"
+  }
+}

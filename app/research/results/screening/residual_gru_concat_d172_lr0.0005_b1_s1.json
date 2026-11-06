@@ -1,0 +1,159 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.42771941820780435,
+      "validation": {
+        "loss": 0.4612985212537977,
+        "acc": 0.7944444444444444,
+        "ap": 0.8926481513109666,
+        "auc": 0.889001925925926,
+        "n": 9000
+      },
+      "seconds": 9.528660957934335
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.40239945802234467,
+      "validation": {
+        "loss": 0.44515439690483943,
+        "acc": 0.806,
+        "ap": 0.8931999223479928,
+        "auc": 0.8918022222222223,
+        "n": 9000
+      },
+      "seconds": 9.633452542009763
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.3769125557854062,
+      "validation": {
+        "loss": 0.4700024168226454,
+        "acc": 0.7965555555555556,
+        "ap": 0.8955087219477393,
+        "auc": 0.8937800493827162,
+        "n": 9000
+      },
+      "seconds": 10.855742958956398
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.37355847540355863,
+      "validation": {
+        "loss": 0.46767486826578775,
+        "acc": 0.7924444444444444,
+        "ap": 0.8915980135005371,
+        "auc": 0.8948197530864197,
+        "n": 9000
+      },
+      "seconds": 10.189454791950993
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.357950312659854,
+      "validation": {
+        "loss": 0.42012645467122395,
+        "acc": 0.8145555555555556,
+        "ap": 0.8937111478784613,
+        "auc": 0.8952794567901234,
+        "n": 9000
+      },
+      "seconds": 9.895076832966879
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.35245993677775067,
+      "validation": {
+        "loss": 0.464124277750651,
+        "acc": 0.7964444444444444,
+        "ap": 0.864897057419123,
+        "auc": 0.8829636543209877,
+        "n": 9000
+      },
+      "seconds": 10.255478832987137
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.35051046498616534,
+      "validation": {
+        "loss": 0.42010462188720704,
+        "acc": 0.8131111111111111,
+        "ap": 0.8912829944931602,
+        "auc": 0.8950900740740739,
+        "n": 9000
+      },
+      "seconds": 10.27508095803205
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.33267654854910716,
+      "validation": {
+        "loss": 0.41880664613511825,
+        "acc": 0.8137777777777778,
+        "ap": 0.8831258312788988,
+        "auc": 0.8926273086419754,
+        "n": 9000
+      },
+      "seconds": 9.92022208403796
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3298563035329183,
+      "validation": {
+        "loss": 0.43609983825683596,
+        "acc": 0.8092222222222222,
+        "ap": 0.8686575735212421,
+        "auc": 0.8854726419753086,
+        "n": 9000
+      },
+      "seconds": 10.589868874987587
+    }
+  ],
+  "best_epoch": 5,
+  "validation": {
+    "loss": 0.42012645467122395,
+    "acc": 0.8145555555555556,
+    "ap": 0.8937111478784613,
+    "auc": 0.8952794567901234,
+    "n": 9000
+  },
+  "elapsed_seconds": 92.58514799992554,
+  "epochs_run": 9,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "residual_gru",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1
+  },
+  "stage": "screening",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 297218,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "b4f860a3a9e107d378f8c6af3fe3987783d2e6b95153a6c6715388f755286981",
+  "checkpoint": "app/research/checkpoints/screening/residual_gru_concat_d172_lr0.0005_b1_s1.pt"
+}

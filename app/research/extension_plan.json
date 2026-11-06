@@ -1,0 +1,90 @@
+{
+  "study": "mLSTM, DeltaNet and user-specified Bayesian Layer extension",
+  "dataset": "CollegeMsg",
+  "prior_test_was_observed": true,
+  "interpretation": "Additional comparisons on the same established benchmark, not a new unseen external test",
+  "selection_rule": "Validation AUC, then AP and ACC; never tune configurations from extension test scores",
+  "decoder_mlp": "Unchanged 516 -> 172 -> 1 with ReLU",
+  "shared": {
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "optimizer": "Adam",
+    "lr": 0.0005,
+    "batch_size": 200,
+    "bptt_batches": 1,
+    "grad_clip": 1.0,
+    "event_backend": "wave",
+    "paired_initial_ids_decoder_weights_training_queries": true
+  },
+  "matrix_screening": {
+    "encoders": [
+      "mlstm",
+      "deltanet"
+    ],
+    "matrix_heads": 4,
+    "variants": [
+      {
+        "matrix_key_dim": 8,
+        "decoder_input": "concat"
+      },
+      {
+        "matrix_key_dim": 16,
+        "decoder_input": "concat"
+      },
+      {
+        "matrix_key_dim": 8,
+        "decoder_input": "matrix_query"
+      },
+      {
+        "matrix_key_dim": 8,
+        "decoder_input": "matrix_query_raw"
+      }
+    ],
+    "seeds": [
+      1
+    ],
+    "epochs": 16,
+    "patience": 5
+  },
+  "matrix_confirmation": {
+    "configuration": "Best seed-1 validation configuration within each encoder family",
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "epochs": 50,
+    "patience": 10
+  },
+  "state_memory": "Persistent matrix states add memory beyond the common 172-dimensional output. Report actual buffer bytes; do not claim equal state memory",
+  "bayesian": {
+    "status": "User delegated paper choice; selected Bayes by Backprop Gaussian variational encoder layer",
+    "primary_reference": "https://proceedings.mlr.press/v37/blundell15.html",
+    "implementation": "Bayesian minGRU candidate input projection; deterministic gate/residual/MLP decoder",
+    "prior_std": 0.1,
+    "posterior_rho_init": -5.0,
+    "screen_kl_weights": [
+      1.0,
+      0.01
+    ],
+    "screen_mc_samples": 3,
+    "final_mc_samples": 5,
+    "test_mc_samples": 10,
+    "training_sampling": "One weight draw per BPTT window, KL divided by all epoch queries",
+    "evaluation_sampling": "Independent full-prefix replay per fixed posterior draw; mean sigmoid probability",
+    "nonunit_kl_weight_is_tempered_ELBO": true
+  },
+  "artifacts": {
+    "screening_stage": "extension_screen",
+    "final_stage": "extension_final",
+    "selection": "extension_selection.json",
+    "test_stage": "extension_heldout",
+    "report": "EXTENSION_REPORT.md",
+    "preserve_previous_study_artifacts": true
+  },
+  "prior_artifact_sha256": {
+    "selection.json": "e4c854ca652b48232d1f5089d136ab1994961b406104b642da690668aeb1c059",
+    "best_config.json": "e4c854ca652b48232d1f5089d136ab1994961b406104b642da690668aeb1c059",
+    "REPORT.md": "30f01ab0f7981f3e28a55d037c09797cd69f44903b0bb0dfc1379748f8308b28"
+  }
+}

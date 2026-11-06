@@ -1,0 +1,195 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4318941024598621,
+      "validation": {
+        "loss": 0.46545550028483074,
+        "acc": 0.7923333333333333,
+        "ap": 0.8838299248388023,
+        "auc": 0.8847057777777778,
+        "n": 9000
+      },
+      "seconds": 20.24174679198768
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4164688930511475,
+      "validation": {
+        "loss": 0.4478812950981988,
+        "acc": 0.8014444444444444,
+        "ap": 0.8690164291207843,
+        "auc": 0.8755091358024691,
+        "n": 9000
+      },
+      "seconds": 20.39917087496724
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.40015192967369445,
+      "validation": {
+        "loss": 0.4408474366929796,
+        "acc": 0.8015555555555556,
+        "ap": 0.8854971764779356,
+        "auc": 0.8814238765432099,
+        "n": 9000
+      },
+      "seconds": 20.396344833890907
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.3939719925835019,
+      "validation": {
+        "loss": 0.5022746005588108,
+        "acc": 0.7586666666666667,
+        "ap": 0.841486301448079,
+        "auc": 0.8532396296296296,
+        "n": 9000
+      },
+      "seconds": 23.163341625011526
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3857746185121082,
+      "validation": {
+        "loss": 0.430419544643826,
+        "acc": 0.8127777777777778,
+        "ap": 0.892316520993055,
+        "auc": 0.8876813827160495,
+        "n": 9000
+      },
+      "seconds": 21.72589737502858
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3827141589210147,
+      "validation": {
+        "loss": 0.4842006157769097,
+        "acc": 0.78,
+        "ap": 0.8636262842735838,
+        "auc": 0.8693297283950617,
+        "n": 9000
+      },
+      "seconds": 23.040416207979433
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.38966244061787925,
+      "validation": {
+        "loss": 0.44461078050401476,
+        "acc": 0.803,
+        "ap": 0.8939367655839601,
+        "auc": 0.8884853333333333,
+        "n": 9000
+      },
+      "seconds": 23.05808366695419
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.37626986821492514,
+      "validation": {
+        "loss": 0.43820465426974825,
+        "acc": 0.8157777777777778,
+        "ap": 0.885331506747791,
+        "auc": 0.8869414320987655,
+        "n": 9000
+      },
+      "seconds": 22.47061866603326
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.37263727978297645,
+      "validation": {
+        "loss": 0.450396358066135,
+        "acc": 0.8048888888888889,
+        "ap": 0.8804183974139915,
+        "auc": 0.8853677530864197,
+        "n": 9000
+      },
+      "seconds": 24.302641834015958
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.36103263237362815,
+      "validation": {
+        "loss": 0.4589177559746636,
+        "acc": 0.8056666666666666,
+        "ap": 0.8877143390502754,
+        "auc": 0.8892751604938273,
+        "n": 9000
+      },
+      "seconds": 19.320659999968484
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.35233543831961495,
+      "validation": {
+        "loss": 0.5203503095838758,
+        "acc": 0.7854444444444444,
+        "ap": 0.8932465851283302,
+        "auc": 0.8909587654320987,
+        "n": 9000
+      },
+      "seconds": 18.779216708033346
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.35416446004595076,
+      "validation": {
+        "loss": 0.47711335118611653,
+        "acc": 0.7993333333333333,
+        "ap": 0.8973212194438049,
+        "auc": 0.8939406666666666,
+        "n": 9000
+      },
+      "seconds": 19.478912666090764
+    }
+  ],
+  "best_epoch": 12,
+  "validation": {
+    "loss": 0.47711335118611653,
+    "acc": 0.7993333333333333,
+    "ap": 0.8973212194438049,
+    "auc": 0.8939406666666666,
+    "n": 9000
+  },
+  "elapsed_seconds": 260.83468924998306,
+  "epochs_run": 12,
+  "config": {
+    "dataset": "CollegeMsg",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "encoder_type": "gated_linear",
+    "decoder_input": "hybrid"
+  },
+  "stage": "decoder_followup",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 208294,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "6516d969e965ab6a23032a45114da3fc6388821438f5983ffe395aa979e5c8a2",
+  "checkpoint": "app/research/checkpoints/decoder_followup/gated_linear_hybrid_d172_lr0.0005_b1_s1.pt"
+}

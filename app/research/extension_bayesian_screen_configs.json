@@ -1,0 +1,34 @@
+[
+  {
+    "dataset": "CollegeMsg",
+    "encoder_type": "bayesian_mingru",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "event_backend": "wave",
+    "decoder_input": "concat",
+    "bayes_prior_std": 0.1,
+    "bayes_posterior_rho_init": -5.0,
+    "mc_samples": 3,
+    "test_mc_samples": 10,
+    "kl_weight": 1.0
+  },
+  {
+    "dataset": "CollegeMsg",
+    "encoder_type": "bayesian_mingru",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "event_backend": "wave",
+    "decoder_input": "concat",
+    "bayes_prior_std": 0.1,
+    "bayes_posterior_rho_init": -5.0,
+    "mc_samples": 3,
+    "test_mc_samples": 10,
+    "kl_weight": 0.01
+  }
+]

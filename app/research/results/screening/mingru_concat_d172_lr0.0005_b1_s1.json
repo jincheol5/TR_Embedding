@@ -1,0 +1,159 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.42781510053362165,
+      "validation": {
+        "loss": 0.4590815938313802,
+        "acc": 0.7963333333333333,
+        "ap": 0.8904715174292341,
+        "auc": 0.8883933827160493,
+        "n": 9000
+      },
+      "seconds": 13.95003612502478
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4061833307175409,
+      "validation": {
+        "loss": 0.45528498925103084,
+        "acc": 0.8055555555555556,
+        "ap": 0.8697270612528699,
+        "auc": 0.8800228148148148,
+        "n": 9000
+      },
+      "seconds": 14.553666708990932
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.39021189626057945,
+      "validation": {
+        "loss": 0.42611856163872613,
+        "acc": 0.817,
+        "ap": 0.8897764232034195,
+        "auc": 0.8898496296296295,
+        "n": 9000
+      },
+      "seconds": 13.446972250007093
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.3769620418548584,
+      "validation": {
+        "loss": 0.4855579935709635,
+        "acc": 0.7794444444444445,
+        "ap": 0.8802223437262903,
+        "auc": 0.8893218271604938,
+        "n": 9000
+      },
+      "seconds": 13.396937625017017
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3608900088355655,
+      "validation": {
+        "loss": 0.41483503807915584,
+        "acc": 0.8203333333333334,
+        "ap": 0.896841846387145,
+        "auc": 0.8966237037037037,
+        "n": 9000
+      },
+      "seconds": 15.790997875039466
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3566469856443859,
+      "validation": {
+        "loss": 0.4358029344346788,
+        "acc": 0.8044444444444444,
+        "ap": 0.8903376076328677,
+        "auc": 0.8934783950617285,
+        "n": 9000
+      },
+      "seconds": 14.053620415972546
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.35300257328578405,
+      "validation": {
+        "loss": 0.4431388749016656,
+        "acc": 0.8081111111111111,
+        "ap": 0.897643538959656,
+        "auc": 0.8960404444444445,
+        "n": 9000
+      },
+      "seconds": 13.411731832893565
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3421460704803467,
+      "validation": {
+        "loss": 0.43168136808607316,
+        "acc": 0.8124444444444444,
+        "ap": 0.8905858960480284,
+        "auc": 0.8942301728395062,
+        "n": 9000
+      },
+      "seconds": 14.781009959056973
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3348704548790341,
+      "validation": {
+        "loss": 0.47728123558892144,
+        "acc": 0.7941111111111111,
+        "ap": 0.8664402406796474,
+        "auc": 0.8651010370370371,
+        "n": 9000
+      },
+      "seconds": 15.770261624944396
+    }
+  ],
+  "best_epoch": 5,
+  "validation": {
+    "loss": 0.41483503807915584,
+    "acc": 0.8203333333333334,
+    "ap": 0.896841846387145,
+    "auc": 0.8966237037037037,
+    "n": 9000
+  },
+  "elapsed_seconds": 132.32875529199373,
+  "epochs_run": 9,
+  "config": {
+    "dataset": "CollegeMsg",
+    "encoder_type": "mingru",
+    "decoder_input": "concat",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1
+  },
+  "stage": "screening",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 178366,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "6516d969e965ab6a23032a45114da3fc6388821438f5983ffe395aa979e5c8a2",
+  "checkpoint": "app/research/checkpoints/screening/mingru_concat_d172_lr0.0005_b1_s1.pt"
+}

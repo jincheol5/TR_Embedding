@@ -1,0 +1,56 @@
+{
+  "stage": "extension_benchmark",
+  "configs": [
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "mlstm",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "deltanet",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1
+    },
+    {
+      "dataset": "CollegeMsg",
+      "encoder_type": "bayesian_mingru",
+      "decoder_input": "concat",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1
+    }
+  ],
+  "epochs": 1,
+  "patience": 1,
+  "test_evaluation": false,
+  "command": [
+    "/Users/jincheol/github_repo/TR_Embedding/app/research/run.py",
+    "--stage",
+    "extension_benchmark",
+    "--encoders",
+    "mlstm",
+    "deltanet",
+    "bayesian_mingru",
+    "--decoder-inputs",
+    "concat",
+    "--epochs",
+    "1",
+    "--patience",
+    "1",
+    "--workers",
+    "3"
+  ],
+  "created_unix": 1793956769.63664
+}

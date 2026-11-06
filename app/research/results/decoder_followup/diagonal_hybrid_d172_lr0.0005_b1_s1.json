@@ -1,0 +1,159 @@
+{
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.42883234151204425,
+      "validation": {
+        "loss": 0.5295510669284397,
+        "acc": 0.7467777777777778,
+        "ap": 0.876108539875508,
+        "auc": 0.8810645679012344,
+        "n": 9000
+      },
+      "seconds": 9.685276541044004
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.419696065176101,
+      "validation": {
+        "loss": 0.44129609934488934,
+        "acc": 0.8082222222222222,
+        "ap": 0.8749452843024097,
+        "auc": 0.8789856296296297,
+        "n": 9000
+      },
+      "seconds": 9.73005962499883
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.4131271160670689,
+      "validation": {
+        "loss": 0.4411474380493164,
+        "acc": 0.8053333333333333,
+        "ap": 0.8891367122741349,
+        "auc": 0.8833761481481481,
+        "n": 9000
+      },
+      "seconds": 10.268108292017132
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.39618412272135417,
+      "validation": {
+        "loss": 0.4506796400282118,
+        "acc": 0.8042222222222222,
+        "ap": 0.8860589031412529,
+        "auc": 0.8860382222222222,
+        "n": 9000
+      },
+      "seconds": 10.928224834031425
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.388991119657244,
+      "validation": {
+        "loss": 0.4404464382595486,
+        "acc": 0.8143333333333334,
+        "ap": 0.8946919573398748,
+        "auc": 0.8906479506172839,
+        "n": 9000
+      },
+      "seconds": 10.871718415990472
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.38380727359226774,
+      "validation": {
+        "loss": 0.45190804206000434,
+        "acc": 0.8065555555555556,
+        "ap": 0.882906678524425,
+        "auc": 0.8854587654320989,
+        "n": 9000
+      },
+      "seconds": 10.60080416710116
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.3877998609088716,
+      "validation": {
+        "loss": 0.4352291810777452,
+        "acc": 0.8055555555555556,
+        "ap": 0.8936800494657238,
+        "auc": 0.8870684444444445,
+        "n": 9000
+      },
+      "seconds": 11.094629959086888
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3743717843918573,
+      "validation": {
+        "loss": 0.45059378899468316,
+        "acc": 0.8071111111111111,
+        "ap": 0.8731067155146851,
+        "auc": 0.8778034567901235,
+        "n": 9000
+      },
+      "seconds": 10.274281999911182
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.3707785661788214,
+      "validation": {
+        "loss": 0.48309434848361543,
+        "acc": 0.7973333333333333,
+        "ap": 0.8667313086552552,
+        "auc": 0.8646133333333333,
+        "n": 9000
+      },
+      "seconds": 11.500682958052494
+    }
+  ],
+  "best_epoch": 5,
+  "validation": {
+    "loss": 0.4404464382595486,
+    "acc": 0.8143333333333334,
+    "ap": 0.8946919573398748,
+    "auc": 0.8906479506172839,
+    "n": 9000
+  },
+  "elapsed_seconds": 97.70592395798303,
+  "epochs_run": 9,
+  "config": {
+    "dataset": "CollegeMsg",
+    "mem_dim": 172,
+    "latent_dim": 172,
+    "lr": 0.0005,
+    "seed": 1,
+    "bptt_batches": 1,
+    "encoder_type": "diagonal",
+    "decoder_input": "hybrid"
+  },
+  "stage": "decoder_followup",
+  "data": {
+    "dataset": "CollegeMsg",
+    "n_node": 1899,
+    "events": {
+      "train": 41858,
+      "val": 8970,
+      "test": 8970
+    },
+    "batch_size": 200,
+    "graph_sha256": "fa6a93f9f5c682587795b4ff268c289fac9ef41873cb661a9785278ea1f5c78a"
+  },
+  "trainable_parameters": 148782,
+  "environment": {
+    "python": "3.10.20",
+    "torch": "2.11.0",
+    "device": "cpu",
+    "threads_per_process": 1
+  },
+  "requested_epochs": 12,
+  "patience": 4,
+  "selection_metric": "validation AUC, then AP, then ACC",
+  "evaluation_memory": "reset and replay prefix with frozen current weights",
+  "acc_threshold_logit": 0.0,
+  "grad_clip": 1.0,
+  "training_samples_sha256": "6516d969e965ab6a23032a45114da3fc6388821438f5983ffe395aa979e5c8a2",
+  "checkpoint": "app/research/checkpoints/decoder_followup/diagonal_hybrid_d172_lr0.0005_b1_s1.pt"
+}

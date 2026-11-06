@@ -1,0 +1,36 @@
+{
+  "dataset": "CollegeMsg",
+  "nodes": 1899,
+  "events": 59798,
+  "partition_events": [
+    41858,
+    8970,
+    8970
+  ],
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "timestamp_ties_at_split": [
+    false,
+    false
+  ],
+  "results": [
+    {
+      "partition": "train",
+      "checked": 1050,
+      "mismatches": 0
+    },
+    {
+      "partition": "val",
+      "checked": 27000,
+      "mismatches": 0
+    },
+    {
+      "partition": "test",
+      "checked": 27000,
+      "mismatches": 0
+    }
+  ]
+}

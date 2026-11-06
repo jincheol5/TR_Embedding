@@ -1,0 +1,48 @@
+{
+  "mlstm": {
+    "config": {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "event_backend": "wave",
+      "decoder_input": "matrix_query",
+      "encoder_type": "mlstm",
+      "matrix_heads": 4,
+      "matrix_key_dim": 8
+    },
+    "validation": {
+      "loss": 0.5518090362548829,
+      "acc": 0.8136666666666666,
+      "ap": 0.882446881424061,
+      "auc": 0.8806881481481481,
+      "n": 9000
+    },
+    "source_stage": "extension_screen"
+  },
+  "deltanet": {
+    "config": {
+      "dataset": "CollegeMsg",
+      "mem_dim": 172,
+      "latent_dim": 172,
+      "lr": 0.0005,
+      "seed": 1,
+      "bptt_batches": 1,
+      "event_backend": "wave",
+      "decoder_input": "matrix_query",
+      "encoder_type": "deltanet",
+      "matrix_heads": 4,
+      "matrix_key_dim": 8
+    },
+    "validation": {
+      "loss": 0.5919374037848578,
+      "acc": 0.7932222222222223,
+      "ap": 0.895299129333378,
+      "auc": 0.8884771851851851,
+      "n": 9000
+    },
+    "source_stage": "extension_screen"
+  }
+}
